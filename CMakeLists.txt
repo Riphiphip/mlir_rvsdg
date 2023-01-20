@@ -7,12 +7,12 @@ set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard to conform to")
 
 if(NOT DEFINED LLVM_DIR)
   set(LLVM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/llvm/build/lib/cmake/llvm")
-  message(STATUS "LLVM_DIR not defined. Using ${LLVM_DIR}")
+  message(STATUS "LLVM_DIR not explicitly defined. Attempting to use submodule at ${LLVM_DIR}")
 endif()
 
 if(NOT DEFINED MLIR_DIR)
   set(MLIR_DIR "${CMAKE_CURRENT_SOURCE_DIR}/llvm/build/lib/cmake/mlir")
-  message(STATUS "MLIR_DIR not defined. Using ${MLIR_DIR}")
+  message(STATUS "MLIR_DIR not explicitly defined. Attempting to use submodule at ${MLIR_DIR}")
 endif()
 
 find_package(MLIR REQUIRED CONFIG)
