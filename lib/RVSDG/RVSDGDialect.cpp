@@ -1,8 +1,7 @@
 
 #include "RVSDG/RVSDGDialect.h"
 
-#define GET_OP_CLASSES
-#include "RVSDG/Ops.h.inc"
+#include "RVSDG/RVSDGOps.h"
 
 
 void mlir::rvsdg::RVSDGDialect::initialize(void){
