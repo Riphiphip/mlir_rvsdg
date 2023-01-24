@@ -5,6 +5,8 @@ set(CMAKE_BUILD_WITH_INSTALL_NAME_DIR ON)
 
 set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard to conform to")
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 if(NOT DEFINED LLVM_DIR)
   set(LLVM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/llvm/build/lib/cmake/llvm")
   message(STATUS "LLVM_DIR not explicitly defined. Attempting to use submodule at ${LLVM_DIR}")
@@ -50,3 +52,4 @@ if(MLIR_ENABLE_BINDINGS_PYTHON)
   add_subdirectory(python)
 endif()
 add_subdirectory(rvsdg-opt)
+add_subdirectory(lsp)
