@@ -16,12 +16,10 @@ def RVSDG_GammaNode: RVSDG_Op<"gammaNode", [IsolatedFromAbove]> {
     );
 
     let regions = (region
-        SizedRegion<1>:$region0,
-        SizedRegion<1>:$region1,
-        VariadicRegion<SizedRegion<1>>:$additionalRegions
+        VariadicRegion<SizedRegion<1>>:$regions
     );
 
-    let assemblyFormat = "attr-dict `(` $predicate `)` custom<TypedParamList>($inputs, type($inputs)) `:` `[` regions `]` `->` type(results)";
+    let assemblyFormat = "attr-dict `(` $predicate `)` custom<TypedParamList>($inputs, type($inputs)) `:` custom<RVSDGRegions>($regions) `->` type(results)";
     let hasVerifier = 1;
 }
 
