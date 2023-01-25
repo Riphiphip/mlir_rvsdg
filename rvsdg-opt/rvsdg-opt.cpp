@@ -16,8 +16,6 @@
 #include <RVSDG/RVSDGDialect.h>
 
 int main(int argc, char *argv[]) {
-  printf("Hello from rvsdg-opt!\n");
-
   mlir::DialectRegistry registry;
   registry.insert<mlir::rvsdg::RVSDGDialect>();
   mlir::registerAllDialects(registry);
