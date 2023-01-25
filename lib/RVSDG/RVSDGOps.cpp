@@ -25,27 +25,23 @@ LogicalResult GammaNode::verify() {
            << this->getNumRegions();
   }
   for (auto region : this->getRegions()) {
-    size_t blockCount = region->getBlocks().size();
-    if (blockCount != 1) {
-      return emitOpError(
-                 " has wrong number of blocks in region. Expected 1, got ")
-             << blockCount;
+    if (region->getNumArguments() != this->getInputs().size()) {
+      return emitOpError(" has region with wrong number of arguments. "
+                         "Offending region: #")
+             << region->getRegionNumber() << ". Expected "
+             << this->getInputs().size() << ", got "
+             << region->getNumArguments();
     }
-    for (auto &block : region->getBlocks()) {
-      if (block.getNumArguments() != this->getInputs().size()) {
-        return emitOpError(
-                   " has block with wrong number of arguments in region #")
-               << region->getRegionNumber() << ". Expected "
-               << this->getInputs().size() << ", got "
-               << block.getNumArguments();
-      }
-      auto arguments = block.getArguments();
-      auto inputs = this->getInputs();
-      for (size_t i = 0; i < block.getNumArguments(); ++i) {
-        if (arguments[i].getType() != inputs[i].getType()) {
-          emitOpError(" has mismatched block argument types. Expected")
-              << inputs[i].getType() << ", got " << arguments[i].getType();
-        }
+    auto arguments = region->getArguments();
+    auto inputs = this->getInputs();
+    for (size_t i = 0; i < region->getNumArguments(); ++i) {
+      if (arguments[i].getType() != inputs[i].getType()) {
+        auto argument = arguments[i];
+        emitOpError(" has mismatched region argument types: Region #")
+            << region->getRegionNumber() 
+            << " Argument #" << argument.getArgNumber()
+            << ". Expected " << inputs[i].getType() << ", got "
+            << arguments[i].getType();
       }
     }
   }
