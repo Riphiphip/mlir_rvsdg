@@ -15,8 +15,7 @@ using namespace rvsdg;
  * @brief Verifies structure of built gamma node.
  * Verifies the following attributes:
  *  - Number of regions (>= 2)
- *  - Number of blocks in each region (1)
- *  - Number and type of block arguments (should match gamma inputs)
+ *  - Number and type of region arguments (should match gamma inputs)
  */
 LogicalResult GammaNode::verify() {
   if (this->getNumRegions() < 2) {
@@ -24,24 +23,23 @@ LogicalResult GammaNode::verify() {
                        "but Op has ")
            << this->getNumRegions();
   }
-  for (auto region : this->getRegions()) {
-    if (region->getNumArguments() != this->getInputs().size()) {
+  for (auto &region : this->getRegions()) {
+    if (region.getNumArguments() != this->getInputs().size()) {
       return emitOpError(" has region with wrong number of arguments. "
                          "Offending region: #")
-             << region->getRegionNumber() << ". Expected "
+             << region.getRegionNumber() << ". Expected "
              << this->getInputs().size() << ", got "
-             << region->getNumArguments();
+             << region.getNumArguments();
     }
-    auto arguments = region->getArguments();
+    auto arguments = region.getArguments();
     auto inputs = this->getInputs();
-    for (size_t i = 0; i < region->getNumArguments(); ++i) {
+    for (size_t i = 0; i < region.getNumArguments(); ++i) {
       if (arguments[i].getType() != inputs[i].getType()) {
         auto argument = arguments[i];
         emitOpError(" has mismatched region argument types: Region #")
-            << region->getRegionNumber() 
-            << " Argument #" << argument.getArgNumber()
-            << ". Expected " << inputs[i].getType() << ", got "
-            << arguments[i].getType();
+            << region.getRegionNumber() << " Argument #"
+            << argument.getArgNumber() << ". Expected " << inputs[i].getType()
+            << ", got " << arguments[i].getType();
       }
     }
   }
@@ -133,5 +131,88 @@ parseTypedParamList(OpAsmParser &parser,
   return ParseResult::success();
 }
 
+/**
+ * @brief Prints a list of regions prefixed with a list of region arguments
+ * and their types
+ *
+ * @param p Assembly printer
+ * @param op Operation which we are printing
+ * @param regions Regions of the operation
+ **/
+void printRVSDGRegion(OpAsmPrinter &p, Operation *op, Region &region) {
+  p << "(";
+  size_t argument_count = region.getNumArguments();
+  for (size_t argument_index = 0; argument_index < argument_count;
+       argument_index++) {
+    if (argument_index != 0) {
+      p << ", ";
+    }
+    p.printRegionArgument(region.getArgument(argument_index));
+  }
+  p << "): ";
+  p.printRegion(region, false, true, true);
+}
+
+void printRVSDGRegions(OpAsmPrinter &p, Operation *op,
+                       MutableArrayRef<Region> regions) {
+  p.increaseIndent();
+  p << "[";
+  p.printNewline();
+  size_t region_count = regions.size();
+  for (size_t region_index = 0; region_index < region_count; ++region_index) {
+    if (region_index != 0) {
+      p << ", ";
+      p.printNewline();
+    }
+    printRVSDGRegion(p, op, regions[region_index]);
+  }
+  p.decreaseIndent();
+  p.printNewline();
+  p << "]";
+}
+
+ParseResult parseRVSDGRegion(OpAsmParser &parser, Region &region) {
+  SmallVector<OpAsmParser::Argument, 4> arguments;
+  if (failed(parser.parseArgumentList(arguments, OpAsmParser::Delimiter::Paren,
+                                      true, true))) {
+    return parser.emitError(parser.getCurrentLocation(),
+                            "Failed to parse argument list");
+  }
+  if (failed(parser.parseColon())) {
+    return parser.emitError(parser.getCurrentLocation(),
+                            "Expected a \":\" token");
+  }
+
+  if (failed(parser.parseRegion(region, arguments, true))) {
+    return parser.emitError(parser.getCurrentLocation(),
+                            "Failed to parse region");
+  }
+  return ParseResult::success();
+}
+
+ParseResult
+parseRVSDGRegions(OpAsmParser &parser,
+                  SmallVectorImpl<std::unique_ptr<Region>> &regions) {
+  auto parseRegion = [&]() -> ParseResult {
+    std::unique_ptr<Region> region = std::make_unique<Region>();
+    if (failed(parseRVSDGRegion(parser, *region))) {
+      return ParseResult::failure();
+    }
+    regions.push_back(move(region));
+    return ParseResult::success();
+  };
+
+  ParseResult result = parser.parseCommaSeparatedList(
+      OpAsmParser::Delimiter::Square, parseRegion);
+  if (failed(result)) {
+    return parser.emitError(parser.getCurrentLocation(),
+                            "Failed to parse region list");
+  }
+  return ParseResult::success();
+}
+
+/**
+ * Auto generated sources
+ */
 #define GET_OP_CLASSES
 #include "RVSDG/Ops.cpp.inc"
