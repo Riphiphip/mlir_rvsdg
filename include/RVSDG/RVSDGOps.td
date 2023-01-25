@@ -4,7 +4,7 @@ include "RVSDG/RVSDGDialect.td"
 class RVSDG_Op<string mnemonic, list<Trait> traits = []> :
     Op<RVSDG_Dialect, mnemonic, traits>;
 
-def RVSDG_GammaNode: RVSDG_Op<"gammaNode"> {
+def RVSDG_GammaNode: RVSDG_Op<"gammaNode", [IsolatedFromAbove]> {
     let summary = "RVSDG gamma-node which models conditional execution";
     let arguments = (ins
         Index:$predicate,

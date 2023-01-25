@@ -7,10 +7,16 @@
 using namespace mlir;
 using namespace rvsdg;
 
-
-
 /**
  * Gamma node implementations
+ */
+
+/**
+ * @brief Verifies structure of built gamma node.
+ * Verifies the following attributes:
+ *  - Number of regions (>= 2)
+ *  - Number of blocks in each region (1)
+ *  - Number and type of block arguments (should match gamma inputs)
  */
 LogicalResult GammaNode::verify() {
   if (this->getNumRegions() < 2) {
@@ -28,16 +34,17 @@ LogicalResult GammaNode::verify() {
     for (auto &block : region->getBlocks()) {
       if (block.getNumArguments() != this->getInputs().size()) {
         return emitOpError(
-                   " has block with wrong number of arguments. Expected")
+                   " has block with wrong number of arguments in region #")
+               << region->getRegionNumber() << ". Expected "
                << this->getInputs().size() << ", got "
                << block.getNumArguments();
       }
-      auto argumentTypes = block.getArgumentTypes();
+      auto arguments = block.getArguments();
       auto inputs = this->getInputs();
       for (size_t i = 0; i < block.getNumArguments(); ++i) {
-        if (argumentTypes[i] != inputs[i].getType()) {
+        if (arguments[i].getType() != inputs[i].getType()) {
           emitOpError(" has mismatched block argument types. Expected")
-              << inputs[i].getType() << ", got " << argumentTypes[i];
+              << inputs[i].getType() << ", got " << arguments[i].getType();
         }
       }
     }
@@ -71,7 +78,7 @@ LogicalResult GammaResult::verify() {
 
 /**
  * Assembly directives
-*/
+ */
 
 /**
  * @brief Prints out a comma separated list of parameters paired with their
