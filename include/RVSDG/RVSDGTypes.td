@@ -18,6 +18,22 @@ def StateType : RVSDG_Type<"StateEdge", "state"> {
     }];
 }
 
-def RVSDG_Type : AnyTypeOf<[StateType]>;
+def LambdaRef : RVSDG_Type<"LambdaRef", "lambdaRef"> {
+    let summary = "Reference to a lambda node";
+    let description = [{
+        SSA-values of this type represent a reference to a lambda
+        node. They are produced as the outputs of lambda nodes. 
+        A lambda node can be called by passing its produced lambdaRef
+        to an apply node.
+    }];
+}
+
+def DeltaRef : RVSDG_Type<"DeltaRef", "deltaRef"> {
+    let summary = "Reference to a delta node";
+    let description = [{
+        SSA-values of this type represent a reference to a delta
+        node. They are produced as the outputs of delta nodes. 
+    }];
+}
 
 #endif //RVSDG_TYPES
