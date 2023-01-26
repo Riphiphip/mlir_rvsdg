@@ -7,6 +7,7 @@ add_mlir_dialect_library(MLIRRVSDG
     DEPENDS
     MLIRRVSDGDialectIncGen
     MLIRRVSDGOpsIncGen
+    MLIRRVSDGTypesIncGen
 
     LINK_LIBS PUBLIC
     MLIRDialect

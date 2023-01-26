@@ -9,5 +9,6 @@ def RVSDG_Dialect : Dialect {
     Regionalized Value State Dependency Graph
   }];
   let useFoldAPI = kEmitFoldAdaptorFolder;
+  let useDefaultTypePrinterParser = 1;
 }
 #endif // RVSDG_BASE
