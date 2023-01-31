@@ -1,8 +1,8 @@
 
 add_mlir_dialect_library(MLIRRVSDG
+    RVSDGTypes.cpp
     RVSDGDialect.cpp
     RVSDGOps.cpp
-    RVSDGTypes.cpp
 
     DEPENDS
     MLIRRVSDGDialectIncGen

@@ -9,3 +9,10 @@
 
 #define GET_TYPEDEF_CLASSES
 #include "RVSDG/Types.cpp.inc"
+
+void mlir::rvsdg::RVSDGDialect::addRVSDGTypes() {
+    addTypes<
+#define GET_TYPEDEF_LIST
+#include "RVSDG/Types.cpp.inc"
+    >();
+}

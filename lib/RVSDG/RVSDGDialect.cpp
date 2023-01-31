@@ -5,10 +5,7 @@
 #include "RVSDG/RVSDGTypes.h"
 
 void mlir::rvsdg::RVSDGDialect::initialize(void){
-    addTypes<
-#define GET_TYPEDEF_LIST
-#include "RVSDG/Types.cpp.inc"
-    >();
+    addRVSDGTypes();
     addOperations<
 #define GET_OP_LIST
 #include "RVSDG/Ops.cpp.inc"

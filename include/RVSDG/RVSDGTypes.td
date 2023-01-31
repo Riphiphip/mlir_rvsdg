@@ -26,6 +26,13 @@ def LambdaRef : RVSDG_Type<"LambdaRef", "lambdaRef"> {
         A lambda node can be called by passing its produced lambdaRef
         to an apply node.
     }];
+
+    let parameters = (ins
+        ArrayRefParameter<"mlir::Type">:$argumentTypes,
+        ArrayRefParameter<"mlir::Type">:$returnTypes
+    );
+
+    let assemblyFormat = "`<` $argumentTypes `->` $returnTypes `>`";
 }
 
 def DeltaRef : RVSDG_Type<"DeltaRef", "deltaRef"> {
