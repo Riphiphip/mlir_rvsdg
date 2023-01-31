@@ -42,3 +42,28 @@ def RVSDG_GammaResult: RVSDG_Op<"gammaResult", [
     let assemblyFormat = "attr-dict custom<TypedParamList>($outputValues, type($outputValues))";
     let hasVerifier = 1;
 }
+
+def RVSDG_OmegaNode: RVSDG_Op<"omegaNode", [IsolatedFromAbove]> {
+    let summary = "RVSDG Omega node. Top level node in RVSDG";
+    let arguments = (ins);
+    let results = (outs);
+    let regions = (region SizedRegion<1>:$body);
+    let assemblyFormat = "attr-dict custom<RVSDGRegion>($body)";
+}
+
+def RVSDG_OmegaResult: RVSDG_Op<"omegaResult", [
+        HasParent<"mlir::rvsdg::OmegaNode">,
+        Terminator
+    ]> {
+    let summary = "Omega node results";
+    let description = [{
+        Omega node terminator. Maps operands to items exported
+        from the omega node.
+    }];
+
+    let arguments = (ins
+        Variadic<AnyType>:$outputValues
+    );
+
+    let assemblyFormat = "attr-dict custom<TypedParamList>($outputValues, type($outputValues))";
+}
