@@ -32,7 +32,7 @@ def LambdaRef : RVSDG_Type<"LambdaRef", "lambdaRef"> {
         ArrayRefParameter<"mlir::Type">:$returnTypes
     );
 
-    let assemblyFormat = "`<` $argumentTypes `->` $returnTypes `>`";
+    let assemblyFormat = "`<` `(` $argumentTypes `)` `->` `(` $returnTypes `)` `>`";
 }
 
 def DeltaRef : RVSDG_Type<"DeltaRef", "deltaRef"> {
