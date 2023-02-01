@@ -28,11 +28,11 @@ def LambdaRef : RVSDG_Type<"LambdaRef", "lambdaRef"> {
     }];
 
     let parameters = (ins
-        ArrayRefParameter<"mlir::Type">:$argumentTypes,
-        ArrayRefParameter<"mlir::Type">:$returnTypes
+        OptionalArrayRefParameter<"mlir::Type">:$argumentTypes,
+        OptionalArrayRefParameter<"mlir::Type">:$returnTypes
     );
-
-    let assemblyFormat = "`<` `(` $argumentTypes `)` `->` `(` $returnTypes `)` `>`";
+    
+    let assemblyFormat = "`<` `(` ( `)` ):($argumentTypes^ `)` )? `->` `(` ( `)` ):($returnTypes^ `)` )? `>`";
 }
 
 def DeltaRef : RVSDG_Type<"DeltaRef", "deltaRef"> {
