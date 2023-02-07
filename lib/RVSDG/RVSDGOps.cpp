@@ -2,6 +2,7 @@
 #include "mlir/IR/OpImplementation.h"
 #include "mlir/Support/LogicalResult.h"
 
+#include "RVSDG/RVSDGDialect.h"
 #include "RVSDG/RVSDGOps.h"
 
 using namespace mlir;
@@ -68,6 +69,107 @@ LogicalResult GammaResult::verify() {
   }
 
   return success();
+}
+
+/**
+ * Lambda node
+ */
+
+/**
+ * @brief Verifies structure of lambda node.
+ * Verifies the following attributes:
+ *  - Number and types of region arguments when compared to inputs
+ *    - Given n inputs with types t1, t2 ... tn, there should be at
+ *      least n region arguments where the first n arguments should
+ *      have types t1, t2 ... tn.
+ *  - Verify that function signature has the same number of inputs
+ *    as the lambda node.
+ *
+ */
+LogicalResult LambdaNode::verify() {
+  auto bodyArgumentTypes = this->getRegion().getArgumentTypes();
+  auto nodeInputTypes = this->getOperandTypes();
+
+  if (bodyArgumentTypes.size() < nodeInputTypes.size()) {
+    return emitOpError(
+               "Number of arguments to lambda body needs to be greater than or "
+               "equal to number of node inputs. Expected at least ")
+           << nodeInputTypes.size() << " argument(s), got "
+           << bodyArgumentTypes.size();
+  }
+  for (size_t i = 0; i < nodeInputTypes.size(); ++i) {
+    if (nodeInputTypes[i] != bodyArgumentTypes[i]) {
+      return emitOpError("Mismatched types in lambda node body arguments. "
+                         "First arguments "
+                         "should match node inputs. "
+                         "Offending argument: #")
+             << i << " Expected " << nodeInputTypes[i] << ", got "
+             << bodyArgumentTypes[i];
+    }
+  }
+
+  Value signatureVal = this->getResult();
+  if (!signatureVal.getType().isa<LambdaRefType>()) {
+    return emitOpError(
+        "Result type is invalid. Expected an instance of LambdaRefType. If you "
+        "see this error I feel bad for you.");
+  }
+  LambdaRefType signatureType = signatureVal.getType().cast<LambdaRefType>();
+  ArrayRef<Type> signatureParamTypes = signatureType.getParameterTypes();
+
+  if (signatureParamTypes.size() !=
+      bodyArgumentTypes.size() - nodeInputTypes.size()) {
+    return emitOpError("Mismatch between lambda signature and body arguments: "
+                       "Number of arguments in signature: ")
+           << signatureParamTypes.size()
+           << ". Number of arguments in body AFTER context values: "
+           << bodyArgumentTypes.size() - nodeInputTypes.size();
+  }
+
+  for (size_t sigI = 0, argI = nodeInputTypes.size();
+       sigI < signatureParamTypes.size(); ++sigI, ++argI) {
+    if (signatureParamTypes[sigI] != bodyArgumentTypes[argI]) {
+      return emitOpError("Mismatched types between lambda signature and body "
+                         "arguments. ")
+             << "Signature argument #" << sigI << " has type "
+             << signatureParamTypes[sigI] << ". Body argument #" << argI
+             << " has type " << bodyArgumentTypes[argI];
+    }
+  }
+  return LogicalResult::success();
+}
+
+LogicalResult LambdaResult::verify() {
+  auto parent = cast<LambdaNode>((*this)->getParentOp());
+
+  Value signatureVal = parent.getResult();
+  if (!signatureVal.getType().isa<LambdaRefType>()) {
+    return emitOpError(
+        "Result type is invalid. Expected an instance of LambdaRefType. If you "
+        "see this error I feel bad for you.");
+  }
+  LambdaRefType signatureType = signatureVal.getType().cast<LambdaRefType>();
+  ArrayRef<Type> signatureReturnTypes = signatureType.getReturnTypes();
+
+  auto resultTypes = this->getOperandTypes();
+
+  if (signatureReturnTypes.size() != resultTypes.size()) {
+    return emitOpError("Number of operands to lambda terminator does not match "
+                       "number of return types in signature.");
+  }
+
+  size_t typeIndex = 0;
+  for (auto [sigType, resType] : zip(signatureReturnTypes, resultTypes)) {
+    if (sigType != resType) {
+      return emitOpError("Type mismatch between lambda signature and lambda "
+                         "result Op. Offending type: #")
+             << typeIndex << " Signature has type " << sigType
+             << ", result Op has type " << resType;
+    }
+    ++typeIndex;
+  }
+
+  return LogicalResult::success();
 }
 
 /**
@@ -216,3 +318,13 @@ parseRVSDGRegions(OpAsmParser &parser,
  */
 #define GET_OP_CLASSES
 #include "RVSDG/Ops.cpp.inc"
+
+/**
+ * Implement dialect method for registering Ops
+ */
+void mlir::rvsdg::RVSDGDialect::addRVSDGOps() {
+  addOperations<
+#define GET_OP_LIST
+#include "RVSDG/Ops.cpp.inc"
+      >();
+}

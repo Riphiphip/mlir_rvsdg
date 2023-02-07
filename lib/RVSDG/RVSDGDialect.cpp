@@ -6,10 +6,7 @@
 
 void mlir::rvsdg::RVSDGDialect::initialize(void){
     addRVSDGTypes();
-    addOperations<
-#define GET_OP_LIST
-#include "RVSDG/Ops.cpp.inc"
-    >();
+    addRVSDGOps();
 }
 
 #include "RVSDG/Dialect.cpp.inc"

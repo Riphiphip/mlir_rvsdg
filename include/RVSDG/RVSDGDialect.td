@@ -12,10 +12,15 @@ def RVSDG_Dialect : Dialect {
   let useDefaultTypePrinterParser = 1;
   let extraClassDeclaration = [{
   /*
-  * Used for registering custom parametrized types.
+  * Used for registering RVSDG specific parametrized types.
   * Must be defined as a part of the same unit as class definitions.
   */
   void addRVSDGTypes();
+
+  /*
+  * Registers RVSDG specific Ops.
+  */
+  void addRVSDGOps();
   }];
 }
 #endif // RVSDG_BASE

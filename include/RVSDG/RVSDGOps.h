@@ -4,5 +4,6 @@
 #include "mlir/IR/BuiltinTypes.h"
 #include "mlir/Dialect/Func/IR/FuncOps.h"
 
+#include "RVSDG/RVSDGTypes.h"
 #define GET_OP_CLASSES
 #include "RVSDG/Ops.h.inc"
