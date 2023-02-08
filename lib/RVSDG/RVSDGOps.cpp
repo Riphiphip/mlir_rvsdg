@@ -52,6 +52,12 @@ LogicalResult GammaNode::verify() {
  */
 LogicalResult GammaResult::verify() {
   auto parent = cast<GammaNode>((*this)->getParentOp());
+  if (parent == NULL) {
+    return emitOpError(
+        "GammaResult has no parent of type GammaNode. This error should never "
+        "appear, so if it does, may God have mercy on your soul");
+  }
+
   const auto &results = parent.getResults();
   if (getNumOperands() != results.size()) {
     return emitOpError("has ")
@@ -140,8 +146,13 @@ LogicalResult LambdaNode::verify() {
 }
 
 LogicalResult LambdaResult::verify() {
-  auto parent = cast<LambdaNode>((*this)->getParentOp());
-
+  auto parent = dyn_cast<LambdaNode>((*this)->getParentOp());
+  if (parent == NULL) {
+    return emitOpError(
+        "LambdaResult has no parent of type LambdaNode. This error should "
+        "never "
+        "appear, so if it does, may God have mercy on your soul");
+  }
   Value signatureVal = parent.getResult();
   if (!signatureVal.getType().isa<LambdaRefType>()) {
     return emitOpError(
@@ -164,6 +175,70 @@ LogicalResult LambdaResult::verify() {
       return emitOpError("Type mismatch between lambda signature and lambda "
                          "result Op. Offending type: #")
              << typeIndex << " Signature has type " << sigType
+             << ", result Op has type " << resType;
+    }
+    ++typeIndex;
+  }
+
+  return LogicalResult::success();
+}
+
+/**
+ * Theta node
+ */
+
+LogicalResult ThetaNode::verify() {
+  auto inputTypes = this->getInputs().getTypes();
+  auto outputTypes = this->getOutputs().getTypes();
+  auto regionArgTypes = this->getRegion().getArgumentTypes();
+
+  if (inputTypes.size() != outputTypes.size() ||
+      inputTypes.size() != regionArgTypes.size()) {
+    return emitOpError(" has should have an equal number of inputs, outputs,"
+                       " and region arguments.")
+           << " Number of inputs: " << inputTypes.size()
+           << " Number of outputs: " << outputTypes.size()
+           << " Number of region arguments: " << regionArgTypes.size();
+  }
+  size_t typeIndex = 0;
+  for (auto [inType, outType, argType] :
+       zip(inputTypes, outputTypes, regionArgTypes)) {
+    if (inType != outType || inType != argType) {
+      return emitOpError("Type mismatch between node inputs, node outputs, and "
+                         "region arguments. "
+                         "Offending argument: #")
+             << typeIndex << " Input type: " << inType
+             << " Output type: " << outType
+             << " Region argument type: " << argType;
+    }
+    ++typeIndex;
+  }
+  return LogicalResult::success();
+}
+
+LogicalResult ThetaResult::verify() {
+  auto resultTypes = this->getOutputValues().getTypes();
+  ThetaNode parent = dyn_cast<ThetaNode>((*this)->getParentOp());
+  if (parent == NULL) {
+    return emitOpError(
+        "ThetaResult has no parent of type ThetaNode. This error should never "
+        "appear, so if it does, may God have mercy on your soul");
+  }
+  auto thetaOperandTypes = parent.getOperandTypes();
+
+  if (parent.getNumOperands() != this->getOutputValues().size()) {
+    return emitOpError(" should have a number of non-predicate operands equal "
+                       "to the number of inputs in the parent theta node.")
+           << " Number of operands: " << resultTypes.size()
+           << " Number of inputs: " << parent.getNumOperands();
+  }
+
+  size_t typeIndex = 0;
+  for (auto [inType, resType] : zip(thetaOperandTypes, resultTypes)) {
+    if (inType != resType) {
+      return emitOpError("Type mismatch between theta inputs and theta "
+                         "result Op. Offending type: #")
+             << typeIndex << " Input has type " << inType
              << ", result Op has type " << resType;
     }
     ++typeIndex;

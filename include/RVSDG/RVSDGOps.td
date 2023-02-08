@@ -118,3 +118,48 @@ def RVSDG_LambdaResult: RVSDG_Op<"lambdaResult", [
 
     let hasVerifier = 1;
 }
+
+def RVSDG_ThetaNode: RVSDG_Op<"thetaNode", [IsolatedFromAbove]> {
+    let summary = "RVSDG theta node. Models a tail-controlled loop";
+    let description = [{
+        RVSDG theta node. Models a tail-controlled loop. First region result
+        is a predicate that decides whether another iteration should occur.
+        Other region results are mapped to region arguments for the next 
+        iteration, or to the node outputs when the loop terminates.
+    }];
+
+    let arguments = (ins
+        Variadic<AnyType>:$inputs
+    );
+
+    let results = (outs
+        Variadic<AnyType>:$outputs
+    );
+
+    let regions = (region
+        SizedRegion<1>:$body
+    );
+
+    let assemblyFormat = "attr-dict custom<TypedParamList>($inputs, type($inputs)) `:` custom<RVSDGRegion>($body) `->` type(results)";
+    let hasVerifier = 1;
+}
+
+def RVSDG_ThetaResult: RVSDG_Op<"thetaResult", [
+    HasParent<"mlir::rvsdg::ThetaNode">,
+    Terminator
+]>{
+    let summary = "Theta node results";
+    let description = [{
+        Theta node results. First operand is a predicate that decides whether the iteration
+        should continue. Other operands map to the arguments of the next iteration if the
+        iteration continues or the outputs of the theta node otherwise.
+    }];
+
+    let arguments = (ins
+        I<1>:$predicate,
+        Variadic<AnyType>:$outputValues
+    );
+
+    let assemblyFormat = "attr-dict `(` $predicate `)` `:` custom<TypedParamList>($outputValues, type($outputValues))";
+    let hasVerifier = 1;
+}
