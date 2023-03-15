@@ -375,7 +375,7 @@ parseRVSDGRegions(OpAsmParser &parser,
     if (failed(parseRVSDGRegion(parser, *region))) {
       return ParseResult::failure();
     }
-    regions.push_back(move(region));
+    regions.push_back(std::move(region));
     return ParseResult::success();
   };
 
