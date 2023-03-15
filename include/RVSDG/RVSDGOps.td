@@ -10,7 +10,14 @@ class RVSDG_Op<string mnemonic, list<Trait> traits = []> :
 *  Gamma Node
 */
 def RVSDG_GammaNode: RVSDG_Op<"gammaNode", [IsolatedFromAbove]> {
-    let summary = "RVSDG gamma-node which models conditional execution";
+    let summary = "RVSDG gamma node which models conditional execution";
+    let description = [{
+        RVSDG gamma node. Models conditional execution such as if and switch statements.
+        The node takes a predicate as its first input. The value of the predicate is used
+        as the index of the region to be executed. Any other inputs are passed as arguments
+        to all regions of the gamma node. The results of all regions are mapped to the
+        outputs of the gamma node.
+    }];
     let arguments = (ins
         Index:$predicate,
         Variadic<AnyType>:$inputs
@@ -52,6 +59,11 @@ def RVSDG_GammaResult: RVSDG_Op<"gammaResult", [
 */
 def RVSDG_OmegaNode: RVSDG_Op<"omegaNode", [IsolatedFromAbove]> {
     let summary = "RVSDG Omega node. Top level node in RVSDG";
+    let description = [{
+        RVSDG omega node. This is the top level node in RVSDG and models a translation unit.
+        Region arguments for this node are values that are imported from external sources.
+        Region results from this node are exports that can be used in other translation units.
+    }];
     let arguments = (ins);
     let results = (outs);
     let regions = (region SizedRegion<1>:$body);
@@ -82,7 +94,13 @@ def RVSDG_OmegaResult: RVSDG_Op<"omegaResult", [
 def RVSDG_LambdaNode: RVSDG_Op<"lambdaNode", [IsolatedFromAbove]> {
 
     let summary = "RVSDG lambda node. Models functions and methods.";
-
+    let description = [{
+        RVSG lambda node. Models a function or method definition. Inputs to this node are context
+        values needed at call-time. The output from this node is a reference to the defined function.
+        The region of this node is the body of the function. Region arguments are context values and
+        function parameters. Region results are the return values of the function.
+    }];
+    
     let arguments = (ins
         Variadic<AnyType>: $contextValues
     );
@@ -152,7 +170,7 @@ def RVSDG_ThetaResult: RVSDG_Op<"thetaResult", [
     let description = [{
         Theta node results. First operand is a predicate that decides whether the iteration
         should continue. Other operands map to the arguments of the next iteration if the
-        iteration continues or the outputs of the theta node otherwise.
+        iteration continues, or the outputs of the theta node otherwise.
     }];
 
     let arguments = (ins
