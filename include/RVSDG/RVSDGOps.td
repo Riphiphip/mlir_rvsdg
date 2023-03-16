@@ -100,7 +100,7 @@ def RVSDG_LambdaNode: RVSDG_Op<"lambdaNode", [IsolatedFromAbove]> {
         The region of this node is the body of the function. Region arguments are context values and
         function parameters. Region results are the return values of the function.
     }];
-    
+
     let arguments = (ins
         Variadic<AnyType>: $contextValues
     );
@@ -179,5 +179,50 @@ def RVSDG_ThetaResult: RVSDG_Op<"thetaResult", [
     );
 
     let assemblyFormat = "attr-dict `(` $predicate `)` `:` custom<TypedParamList>($outputValues, type($outputValues))";
+    let hasVerifier = 1;
+}
+
+def RVSDG_PhiNode: RVSDG_Op<"phiNode", [IsolatedFromAbove]> {
+    let summary = "RVSDG phi node. Models an environment with mutually recursive functions";
+    let description = [{
+        RVSDG phi node. Models an environment with mutually recursive functions. Has a single region
+        which can contain lambda and delta nodes. Inputs to this node capture context values that are
+        needed by the contained nodes. Outputs are references to the contained mutually recursive functions.
+        The region arguments consist of the context values passed through the inputs, and references
+        to the enclosed lambda nodes. The region results map to the region arguments which are lambda
+        references, and to the outputs of the phi node.
+    }];
+
+    let arguments = (ins
+        Variadic<AnyType>:$inputs
+    );
+
+    let results = (outs
+        Variadic<LambdaRef>:$outputs
+    );
+
+    let regions = (region
+        SizedRegion<1>:$body
+    );
+
+    let assemblyFormat = "attr-dict custom<TypedParamList>($inputs, type($inputs)) `:` custom<RVSDGRegion>($body) `->` type(results)";
+    let hasVerifier = 1;
+}
+
+def RVSDG_PhiResult: RVSDG_Op<"phiResult", [
+    HasParent<"mlir::rvsdg::PhiNode">,
+    Terminator
+]>{
+    let summary = "Phi node results";
+    let description = [{
+        Phi node results. Maps operands to the region arguments which are lambda
+        references, and to the outputs of the phi node.
+    }];
+
+    let arguments = (ins
+        Variadic<LambdaRef>:$results
+    );
+
+    let assemblyFormat = "attr-dict custom<TypedParamList>($results, type($results))";
     let hasVerifier = 1;
 }

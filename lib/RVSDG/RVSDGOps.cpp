@@ -150,8 +150,7 @@ LogicalResult LambdaResult::verify() {
   if (parent == NULL) {
     return emitOpError(
         "LambdaResult has no parent of type LambdaNode. This error should "
-        "never "
-        "appear, so if it does, may God have mercy on your soul");
+        "never appear, so if it does, may God have mercy on your soul");
   }
   Value signatureVal = parent.getResult();
   if (!signatureVal.getType().isa<LambdaRefType>()) {
@@ -244,6 +243,60 @@ LogicalResult ThetaResult::verify() {
     ++typeIndex;
   }
 
+  return LogicalResult::success();
+}
+
+
+/**
+ * Phi node
+ */
+
+LogicalResult PhiNode::verify() {
+  size_t nOperands = this->getNumOperands();
+  size_t nOutputs = this->getOutputs().size();
+  size_t nArgs = this->getRegion().getNumArguments();
+  if (nOperands + nOutputs != nArgs) {
+    return this->emitOpError(" has wrong number of region arguments. Number of arguments should be equal to the number of inputs plus the number of outputs.");
+  }
+
+  for (auto [operandType, argType]: zip(this->getOperandTypes(), this->getRegion().getArgumentTypes())) {
+    if (operandType != argType) {
+      this->emitOpError(" has a type mismatch between inputs and region arguments");
+    }
+  }
+
+  auto argTypes = this->getRegion().getArgumentTypes();
+  auto outputs = this->getOutputs();
+
+  for (size_t outputIndex=0, argIndex=nOperands; outputIndex < nOutputs; ++outputIndex, ++argIndex) {
+    if (outputs[outputIndex].getType() != argTypes[argIndex]) {
+      return this->emitOpError(" has a type mismatch between outputs and region arguments");
+    }
+  }
+
+  return LogicalResult::success();
+}
+
+LogicalResult PhiResult::verify() {
+  PhiNode parent = dyn_cast<PhiNode>((*this)->getParentOp());
+  if (parent == NULL) {
+    return emitOpError(
+        "PhiResult has no parent of type PhiNode. This error should never "
+        "appear, so if it does, may God have mercy on your soul");
+  }
+  auto resultTypes = this->getOperandTypes();
+  const auto &outputs = parent.getOutputs();
+
+  for (size_t i=0; i < resultTypes.size(); ++i) {
+    if (resultTypes[i] != outputs[i].getType()) {
+      return this->emitOpError(" has a type mismatch between result Op and node outputs");
+    }
+  }
+  /* 
+  Should technically check type matchup with region arguments as well, but
+  match between outputs and region arguments is already being checked in the
+  PhiNode verifier.
+  */
   return LogicalResult::success();
 }
 
