@@ -5,6 +5,12 @@ mlir_tablegen(Dialect.cpp.inc -gen-dialect-defs)
 add_public_tablegen_target(MLIRRVSDGDialectIncGen)
 add_dependencies(mlir-headers MLIRRVSDGDialectIncGen)
 
+set(LLVM_TARGET_DEFINITIONS RVSDGInterfaces.td)
+mlir_tablegen(TypeInterfaces.h.inc -gen-type-interface-decls)
+mlir_tablegen(TypeInterfaces.cpp.inc -gen-type-interface-defs)
+add_public_tablegen_target(MLIRRVSDGTypeInterfacesIncGen)
+add_dependencies(mlir-headers MLIRRVSDGTypeInterfacesIncGen)
+
 set(LLVM_TARGET_DEFINITIONS RVSDGTypes.td)
 mlir_tablegen(Types.h.inc -gen-typedef-decls)
 mlir_tablegen(Types.cpp.inc -gen-typedef-defs)

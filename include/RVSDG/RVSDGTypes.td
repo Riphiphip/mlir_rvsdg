@@ -4,17 +4,36 @@
 include "mlir/IR/AttrTypeBase.td"
 
 include "RVSDGDialect.td"
+include "RVSDGInterfaces.td"
+
 
 class RVSDG_Type<string name, string typeMnemonic, list<Trait> traits = []>: TypeDef<RVSDG_Dialect, name, traits> {
     let mnemonic = typeMnemonic;
 }
 
-def StateType : RVSDG_Type<"StateEdge", "state"> {
-    let summary = "Type representing RVSDG state edges";
+class RVSDG_StateType<string name, string typeMnemonic, list<Trait> traits = [StateTypeInterface]> : RVSDG_Type<name, typeMnemonic, traits>;
+
+def IOStateType : RVSDG_StateType<"IOStateEdge", "ioState"> {
+    let summary = "Type representing RVSDG state edges that sequentialize input/output operations";
     let description = [{
-        SSA-values of this type are used to model RVSDG state edges.
-        Any node that takes an input of this type should be 
-        executed after the node that produced the value.
+        SSA-values of this type are used to model RVSDG state edges
+        that serialize input/output operations.
+    }];
+}
+
+def MemStateType : RVSDG_StateType<"MemStateEdge", "memState"> {
+    let summary = "Type representing RVSDG state edges that sequentialize memory operations";
+    let description = [{
+        SSA-values of this type are used to model RVSDG state edges
+        that serialize memory operations.
+    }];
+}
+
+def LoopStateType : RVSDG_StateType<"LoopStateEdge", "loopState"> {
+    let summary = "Type representing RVSDG state edges that sequentialize loops TODO!: Figure out what this is for";
+    let description = [{
+        SSA-values of this type are used to model RVSDG state edges
+        that serialize loops TODO!: Figure out what this is for.
     }];
 }
 

@@ -20,7 +20,7 @@ def RVSDG_GammaNode: RVSDG_Op<"gammaNode", [IsolatedFromAbove]> {
     }];
     let arguments = (ins
         Index:$predicate,
-        Variadic<AnyType>:$inputs
+        Variadic<AnyType>:$inputs,
     );
 
     let results = (outs
