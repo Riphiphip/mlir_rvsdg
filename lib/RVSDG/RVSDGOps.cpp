@@ -301,6 +301,48 @@ LogicalResult PhiResult::verify() {
 }
 
 /**
+ * Delta node
+ */
+
+LogicalResult DeltaNode::verify() {
+  auto inputTypes = this->getInputs().getTypes();
+  auto regionArgTypes = this->getRegion().getArgumentTypes();
+
+  if (inputTypes.size() != regionArgTypes.size()) {
+    return emitOpError(" should have an equal number of inputs and region arguments.")
+           << " Number of inputs: " << inputTypes.size()
+           << " Number of region arguments: " << regionArgTypes.size();
+  }
+  size_t typeIndex = 0;
+  for (auto [inType, argType] :zip(inputTypes, regionArgTypes)) {
+    if (inType != argType) {
+      return emitOpError("Type mismatch between node inputs and region arguments.")
+            << " Offending argument: #"
+            << typeIndex 
+            << " Input type: " << inType
+            << " Region argument type: " << argType;
+    }
+    ++typeIndex;
+  }
+  return LogicalResult::success();
+}
+
+LogicalResult DeltaResult::verify() {
+  auto parent = dyn_cast<DeltaNode>((*this)->getParentOp());
+  if (parent == NULL) {
+    return emitOpError("DeltaResult has no parent of type DeltaNode.");
+  }
+  auto resultType = this->getOperand().getType();
+  auto outputElementType = parent.getOutput().getType().getElementType();
+  if (resultType != outputElementType) {
+    return emitOpError("Type mismatch between DeltaResult and DeltaNode output.")
+           << " DeltaResult type: " << resultType
+           << " DeltaNode output element type: " << outputElementType;
+  }
+  return LogicalResult::success();
+}
+
+/**
  * Assembly directives
  */
 

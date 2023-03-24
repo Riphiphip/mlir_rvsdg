@@ -20,7 +20,7 @@ def RVSDG_GammaNode: RVSDG_Op<"gammaNode", [IsolatedFromAbove]> {
     }];
     let arguments = (ins
         Index:$predicate,
-        Variadic<AnyType>:$inputs,
+        Variadic<AnyType>:$inputs
     );
 
     let results = (outs
@@ -205,7 +205,7 @@ def RVSDG_PhiNode: RVSDG_Op<"phiNode", [IsolatedFromAbove]> {
         SizedRegion<1>:$body
     );
 
-    let assemblyFormat = "attr-dict custom<TypedParamList>($inputs, type($inputs)) `:` custom<RVSDGRegion>($body) `->` type(results)";
+    let assemblyFormat = "attr-dict custom<TypedParamList>($inputs, type($inputs)) `:` custom<RVSDGRegion>($body) `->` type($outputs)";
     let hasVerifier = 1;
 }
 
@@ -226,3 +226,45 @@ def RVSDG_PhiResult: RVSDG_Op<"phiResult", [
     let assemblyFormat = "attr-dict custom<TypedParamList>($results, type($results))";
     let hasVerifier = 1;
 }
+
+def RVSDG_DeltaNode: RVSDG_Op<"deltaNode", [IsolatedFromAbove]>{
+    let summary = "RVSDG delta node. Used to model global variables";
+
+    let description = [{
+        RVSDG delta node. Used to model global variables. Inputs to the node model
+        context values that the global variable depends on. The output of the node
+        is a single pointer that points to the modelled variable. Region arguments
+        are mapped one to one from the node inputs. The region result is the value
+        of the modelled variable.
+    }];
+
+    let arguments = (ins
+        Variadic<AnyType>:$inputs
+    );
+
+    let results = (outs
+        RVSDG_Pointer: $output
+    );
+
+    let regions = (region
+        SizedRegion<1>: $body
+    );
+
+    let assemblyFormat = "attr-dict custom<TypedParamList>($inputs, type($inputs)) `:` custom<RVSDGRegion>($body) `->` type($output)";
+    let hasVerifier = 1;
+}
+
+def RVSDG_DeltaResult: RVSDG_Op<"deltaResult", [HasParent<"mlir::rvsdg::DeltaNode">, Terminator]> {
+    let summary = "Delta node results";
+    let description = [{
+        Delta node results. Takes the value of the modelled global variable as input.
+    }];
+
+    let arguments = (ins
+        AnyType:$input
+    );
+
+    let assemblyFormat = "attr-dict `(` $input `:` type($input) `)`";
+    let hasVerifier = 1;
+}
+

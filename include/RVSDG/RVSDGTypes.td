@@ -54,12 +54,18 @@ def LambdaRef : RVSDG_Type<"LambdaRef", "lambdaRef"> {
     let assemblyFormat = "`<` `(` ( `)` ):($parameterTypes^ `)` )? `->` `(` ( `)` ):($returnTypes^ `)` )? `>`";
 }
 
-def DeltaRef : RVSDG_Type<"DeltaRef", "deltaRef"> {
-    let summary = "Reference to a delta node";
+def RVSDG_Pointer : RVSDG_Type<"RVSDGPointer", "rvsdgPointer"> {
+    let summary = "Generic typed pointer type";
     let description = [{
-        SSA-values of this type represent a reference to a delta
-        node. They are produced as the outputs of delta nodes. 
+        Generic typed pointer type. Mostly exists for interfacing with the JLM compiler.
+        This type is also used for the output of delta nodes.
     }];
+
+    let parameters = (ins
+        TypeParameter<"mlir::Type", "Type of the element pointed to by the pointer">:$elementType
+    );
+
+    let assemblyFormat = "`<` $elementType `>`";
 }
 
 #endif //RVSDG_TYPES
