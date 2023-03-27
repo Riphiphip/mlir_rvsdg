@@ -182,6 +182,46 @@ LogicalResult LambdaResult::verify() {
   return LogicalResult::success();
 }
 
+LogicalResult ApplyNode::verify() {
+  auto lambdaType = this->getLambda().getType();
+  auto paramTypes = this->getParameters().getTypes();
+  auto resultTypes = this->getResults().getTypes();
+
+  if (lambdaType.getParameterTypes().size() != paramTypes.size()) {
+    return this->emitOpError(" has the wrong number of parameters.")
+    << " Lambda expects " << lambdaType.getParameterTypes().size()
+    << " but " << paramTypes.size() << " were given.";
+  }
+
+  if (lambdaType.getParameterTypes().size() != paramTypes.size()) {
+    return this->emitOpError(" has the wrong number of result types.")
+    << " Lambda provides " << lambdaType.getParameterTypes().size()
+    << " but " << paramTypes.size() << " were specified.";
+  }
+
+  size_t typeIndex = 0;
+  for (auto [lambdaParam, nodeParam] : zip(lambdaType.getParameterTypes(), paramTypes)) {
+    if (lambdaParam != nodeParam) {
+      return emitOpError(" has mismatched parameter types.")
+      << " Offending parameter: #" << typeIndex << "."
+      << " Lambda expected " << lambdaParam << ", but got " << nodeParam;
+    }
+    ++ typeIndex;
+  }
+
+  typeIndex = 0;
+  for (auto [lambdaResult, nodeResult] : zip(lambdaType.getReturnTypes(), resultTypes)) {
+    if (lambdaResult != nodeResult) {
+      return emitOpError(" has mismatched result types.")
+      << " Offending result: #" << typeIndex << "."
+      << " Lambda expected " << lambdaResult << ", but got " << nodeResult;
+    }
+    ++ typeIndex;
+  }
+
+  return LogicalResult::success();
+}
+
 /**
  * Theta node
  */

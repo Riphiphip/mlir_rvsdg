@@ -137,6 +137,27 @@ def RVSDG_LambdaResult: RVSDG_Op<"lambdaResult", [
     let hasVerifier = 1;
 }
 
+def RVSDG_ApplyNode: RVSDG_Op<"applyNode">{
+    let summary = "RVSDG apply node. Used to call lambda nodes";
+    let description = [{
+        RVSDG apply node. Takes a reference to the lambda node to be called as its first input
+        followed by the arguments for the lambda. Outputs the results of applying the lambda node.
+    }];
+
+    let arguments = (ins
+        LambdaRef: $lambda,
+        Variadic<AnyType>: $parameters
+    );
+
+    let results = (outs
+        Variadic<AnyType>: $results
+    );
+
+    let assemblyFormat = "attr-dict $lambda `:` type($lambda) custom<TypedParamList>($parameters, type($parameters)) (`->` type($results)^)?";
+
+    let hasVerifier = 1;
+}
+
 def RVSDG_ThetaNode: RVSDG_Op<"thetaNode", [IsolatedFromAbove]> {
     let summary = "RVSDG theta node. Models a tail-controlled loop";
     let description = [{
