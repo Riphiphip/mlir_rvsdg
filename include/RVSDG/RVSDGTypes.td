@@ -54,7 +54,7 @@ def LambdaRef : RVSDG_Type<"LambdaRef", "lambdaRef"> {
     let assemblyFormat = "`<` `(` ( `)` ):($parameterTypes^ `)` )? `->` `(` ( `)` ):($returnTypes^ `)` )? `>`";
 }
 
-def RVSDG_Pointer : RVSDG_Type<"RVSDGPointer", "rvsdgPointer"> {
+def RVSDG_Pointer : RVSDG_Type<"RVSDGPointer", "ptr"> {
     let summary = "Generic pointer type";
     let description = [{
         Generic pointer type. Mostly exists for interfacing with the JLM compiler.

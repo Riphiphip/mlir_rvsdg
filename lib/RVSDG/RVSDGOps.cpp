@@ -2,6 +2,8 @@
 #include "mlir/IR/OpImplementation.h"
 #include "mlir/Support/LogicalResult.h"
 
+#include "mlir/Dialect/LLVMIR/LLVMTypes.h"
+
 #include "RVSDG/RVSDGDialect.h"
 #include "RVSDG/RVSDGOps.h"
 
@@ -373,7 +375,13 @@ LogicalResult DeltaResult::verify() {
     return emitOpError("DeltaResult has no parent of type DeltaNode.");
   }
   auto resultType = this->getOperand().getType();
-  auto outputElementType = parent.getOutput().getType().getElementType();
+  auto outputType = parent.getOutput().getType();
+  mlir::Type outputElementType;
+  if (auto rvsdgPtrType = outputType.dyn_cast_or_null<RVSDGPointerType>()) {
+    outputElementType = rvsdgPtrType.getElementType();
+  } else if (auto llvmPtrType = outputType.dyn_cast_or_null<mlir::LLVM::LLVMPointerType>()) {
+    outputElementType = llvmPtrType.getElementType(); 
+  }
   if (resultType != outputElementType) {
     return emitOpError("Type mismatch between DeltaResult and DeltaNode output.")
            << " DeltaResult type: " << resultType

@@ -3,6 +3,8 @@ include "mlir/IR/BuiltinTypes.td"
 include "RVSDG/RVSDGDialect.td"
 include "RVSDG/RVSDGTypes.td"
 
+include "mlir/Dialect/LLVMIR/LLVMTypes.td"
+
 class RVSDG_Op<string mnemonic, list<Trait> traits = []> :
     Op<RVSDG_Dialect, mnemonic, traits>;
 
@@ -264,7 +266,7 @@ def RVSDG_DeltaNode: RVSDG_Op<"deltaNode", [IsolatedFromAbove]>{
     );
 
     let results = (outs
-        RVSDG_Pointer: $output
+        AnyTypeOf<[RVSDG_Pointer, LLVMPointerType]>: $output
     );
 
     let regions = (region
