@@ -21,7 +21,7 @@ def RVSDG_GammaNode: RVSDG_Op<"gammaNode", [IsolatedFromAbove]> {
         outputs of the gamma node.
     }];
     let arguments = (ins
-        Index:$predicate,
+        RVSDG_Ctrl:$predicate,
         Variadic<AnyType>:$inputs
     );
 
@@ -33,7 +33,7 @@ def RVSDG_GammaNode: RVSDG_Op<"gammaNode", [IsolatedFromAbove]> {
         VariadicRegion<SizedRegion<1>>:$regions
     );
 
-    let assemblyFormat = "attr-dict `(` $predicate `)` custom<TypedParamList>($inputs, type($inputs)) `:` custom<RVSDGRegions>($regions) `->` type(results)";
+    let assemblyFormat = "attr-dict `(` $predicate `:` type($predicate) `)` custom<TypedParamList>($inputs, type($inputs)) `:` custom<RVSDGRegions>($regions) `->` type(results)";
     let hasVerifier = 1;
 }
 
@@ -197,7 +197,7 @@ def RVSDG_ThetaResult: RVSDG_Op<"thetaResult", [
     }];
 
     let arguments = (ins
-        I<1>:$predicate,
+        RVSDG_Ctrl<2>:$predicate,
         Variadic<AnyType>:$outputValues
     );
 

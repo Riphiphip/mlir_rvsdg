@@ -54,6 +54,32 @@ def LambdaRef : RVSDG_Type<"LambdaRef", "lambdaRef"> {
     let assemblyFormat = "`<` `(` ( `)` ):($parameterTypes^ `)` )? `->` `(` ( `)` ):($returnTypes^ `)` )? `>`";
 }
 
+def RVSDG_Ctrl : RVSDG_Type<"RVSDG_CTRL", "ctrl"> {
+    let summary = "Type used as predicate for gamma and theta nodes";
+    let description = [{
+        Type used as predicate for gamma and theta nodes. Is generated
+        by the match op. Has a fixed number of possible values.
+    }];
+
+    let parameters = (ins
+        "uint64_t":$numOptions
+    );
+
+    let builders = [
+        TypeBuilder<(ins "uint64_t":$numOptions)>
+    ];
+
+    let assemblyFormat = "`<` $numOptions `>`";
+}
+
+class RVSDG_Ctrl<int nOptions>: 
+ConfinedType<RVSDG_Ctrl, 
+    [CPred<"$_self.cast<::mlir::rvsdg::RVSDG_CTRLType>().getNumOptions() == " # nOptions # "">],
+    "RVSDG control type with " # nOptions # " options"
+>,
+BuildableType<"::mlir::rvsdg::RVSDG_CTRLType::get($_builder.getContext(), " # nOptions # ")"> 
+;
+
 def RVSDG_Pointer : RVSDG_Type<"RVSDGPointer", "ptr"> {
     let summary = "Generic pointer type";
     let description = [{
