@@ -5,5 +5,7 @@
 #include "mlir/Dialect/Func/IR/FuncOps.h"
 
 #include "RVSDG/RVSDGTypes.h"
+#include "RVSDG/RVSDGAttrs.h"
+
 #define GET_OP_CLASSES
 #include "RVSDG/Ops.h.inc"

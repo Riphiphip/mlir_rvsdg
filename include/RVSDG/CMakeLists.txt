@@ -17,6 +17,12 @@ mlir_tablegen(Types.cpp.inc -gen-typedef-defs)
 add_public_tablegen_target(MLIRRVSDGTypesIncGen)
 add_dependencies(mlir-headers MLIRRVSDGTypesIncGen)
 
+set(LLVM_TARGET_DEFINITIONS RVSDGAttrs.td)
+mlir_tablegen(Attrs.h.inc -gen-attrdef-decls)
+mlir_tablegen(Attrs.cpp.inc -gen-attrdef-defs)
+add_public_tablegen_target(MLIRRVSDGAttrsIncGen)
+add_dependencies(mlir-headers MLIRRVSDGAttrsIncGen)
+
 set(LLVM_TARGET_DEFINITIONS RVSDGOps.td)
 mlir_tablegen(Ops.h.inc -gen-op-decls)
 mlir_tablegen(Ops.cpp.inc -gen-op-defs)

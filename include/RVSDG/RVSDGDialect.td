@@ -10,12 +10,19 @@ def RVSDG_Dialect : Dialect {
   }];
   let useFoldAPI = kEmitFoldAdaptorFolder;
   let useDefaultTypePrinterParser = 1;
+  let useDefaultAttributePrinterParser = 1;
   let extraClassDeclaration = [{
   /*
   * Used for registering RVSDG specific parametrized types.
   * Must be defined as a part of the same unit as class definitions.
   */
   void addRVSDGTypes();
+
+    /*
+  * Used for registering RVSDG specific parametrized attributes.
+  * Must be defined as a part of the same unit as class definitions.
+  */
+  void addRVSDGAttributes();
 
   /*
   * Registers RVSDG specific Ops.

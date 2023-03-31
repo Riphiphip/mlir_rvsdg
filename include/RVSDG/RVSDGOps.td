@@ -2,6 +2,7 @@ include "mlir/IR/BuiltinTypes.td"
 
 include "RVSDG/RVSDGDialect.td"
 include "RVSDG/RVSDGTypes.td"
+include "RVSDG/RVSDGAttrs.td"
 
 include "mlir/Dialect/LLVMIR/LLVMTypes.td"
 
@@ -291,3 +292,38 @@ def RVSDG_DeltaResult: RVSDG_Op<"deltaResult", [HasParent<"mlir::rvsdg::DeltaNod
     let hasVerifier = 1;
 }
 
+def RVSDG_MaterializeCtrl: RVSDG_Op<"materializeCtrl"> {
+    let summary = "Materialize control value from integer";
+    let description = [{
+        Materialize control value of specific type.
+    }];
+    let results = (outs
+        RVSDG_Ctrl:$output
+    );
+
+    let assemblyFormat = "attr-dict `:` type($output)";
+}
+
+def RVSDG_Match: RVSDG_Op<"match"> {
+    let summary = "Match operator. Lookup table that converts integers into control values";
+    let description = [{
+        Match operator. Lookup table that converts integers into control values.
+        The first input is the integer to be matched. The second input is the
+        default control value. The remaining inputs are pairs of integers and
+        control values. The first integer of each pair is matched against the
+        first input. If the match succeeds, the corresponding control value is
+        returned. If no match is found, the default control value is returned.
+    }];
+
+    let arguments = (ins
+        AnyInteger:$input,
+        TypedArrayAttrBase<RVSDG_MatchRuleAttr, "Array of mapping rules">:$mapping
+    );
+
+    let results = (outs
+        RVSDG_Ctrl:$output
+    );
+
+    let assemblyFormat = "`(` $input `:` type($input) `)` attr-dict `->` type($output)";
+    let hasVerifier = 1;
+}

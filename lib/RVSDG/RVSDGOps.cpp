@@ -1,3 +1,5 @@
+#include <unordered_set>
+
 #include "mlir/IR/Block.h"
 #include "mlir/IR/OpImplementation.h"
 #include "mlir/Support/LogicalResult.h"
@@ -386,6 +388,51 @@ LogicalResult DeltaResult::verify() {
     return emitOpError("Type mismatch between DeltaResult and DeltaNode output.")
            << " DeltaResult type: " << resultType
            << " DeltaNode output element type: " << outputElementType;
+  }
+  return LogicalResult::success();
+}
+
+/**
+ * Match operator
+ */
+
+LogicalResult rvsdg::Match::verify() {
+  auto mappingAttr = this->getMapping();
+  auto nOptions = this->getOutput().getType().getNumOptions();
+
+  std::unordered_map<int64_t, size_t> seenInputs;
+  bool hasDefault = false;
+  size_t ruleIndex = 0;
+  for (auto opaqueAttr : mappingAttr) {
+    if (auto matchRuleAttr = opaqueAttr.dyn_cast<MatchRuleAttr>()) {
+      if (matchRuleAttr.isDefault()) {
+        if (hasDefault) {
+          return emitOpError("Match operator has more than one default rule in its mapping attribute.");
+        } else {
+          hasDefault = true;
+        }
+      }
+      auto matchValues = matchRuleAttr.getValues();
+      for (auto value : matchValues) {
+        if (seenInputs.count(value) != 0) {
+          return emitOpError("Match operator has a duplicate input in its mapping attribute.")
+          << " Input " << value
+          << " in rule #" << ruleIndex
+          << ". Previously seen in rule #" << seenInputs[value];
+        }
+        seenInputs.emplace(value, ruleIndex);
+      }
+
+      auto matchResult = matchRuleAttr.getIndex();
+      if (matchResult >= nOptions) {
+        return emitOpError("Match operator has a result index that is out of bounds in its mapping attribute.")
+        << " Result index: " << matchResult
+        << " Number of options: " << nOptions;
+      }
+      ruleIndex++;
+    } else {
+      return emitOpError("Match operator has a non-MatchRuleAttr attribute in its mapping attribute.");
+    }
   }
   return LogicalResult::success();
 }

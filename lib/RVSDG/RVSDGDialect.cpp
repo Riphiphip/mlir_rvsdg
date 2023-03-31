@@ -6,6 +6,7 @@
 
 void mlir::rvsdg::RVSDGDialect::initialize(void){
     addRVSDGTypes();
+    addRVSDGAttributes();
     addRVSDGOps();
 }
 
