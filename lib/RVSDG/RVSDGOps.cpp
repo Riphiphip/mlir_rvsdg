@@ -20,6 +20,7 @@ using namespace rvsdg;
  * @brief Verifies structure of built gamma node.
  * Verifies the following attributes:
  *  - Number of regions (>= 2)
+ *  - Number of options in predicate (should match number of regions)
  *  - Number and type of region arguments (should match gamma inputs)
  */
 LogicalResult GammaNode::verify() {
@@ -27,6 +28,12 @@ LogicalResult GammaNode::verify() {
     return emitOpError("has too few regions. Minimum number of regions is 2, "
                        "but Op has ")
            << this->getNumRegions();
+  }
+  auto predicateType = this->getPredicate().getType();
+  if (predicateType.getNumOptions() != this->getNumRegions()){
+    return emitOpError("has predicate with wrong number of options. Expected ")
+           << this->getNumRegions() << ", got "
+           << predicateType.getNumOptions();
   }
   for (auto &region : this->getRegions()) {
     if (region.getNumArguments() != this->getInputs().size()) {
@@ -415,7 +422,7 @@ LogicalResult rvsdg::Match::verify() {
       auto matchValues = matchRuleAttr.getValues();
       for (auto value : matchValues) {
         if (seenInputs.count(value) != 0) {
-          return emitOpError("Match operator has a duplicate input in its mapping attribute.")
+          return emitOpError(" has a duplicate input in its mapping attribute.")
           << " Input " << value
           << " in rule #" << ruleIndex
           << ". Previously seen in rule #" << seenInputs[value];
@@ -425,7 +432,7 @@ LogicalResult rvsdg::Match::verify() {
 
       auto matchResult = matchRuleAttr.getIndex();
       if (matchResult >= nOptions) {
-        return emitOpError("Match operator has a result index that is out of bounds in its mapping attribute.")
+        return emitOpError(" has a result index that is out of bounds in its mapping attribute.")
         << " Result index: " << matchResult
         << " Number of options: " << nOptions;
       }

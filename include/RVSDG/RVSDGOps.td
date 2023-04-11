@@ -292,16 +292,21 @@ def RVSDG_DeltaResult: RVSDG_Op<"deltaResult", [HasParent<"mlir::rvsdg::DeltaNod
     let hasVerifier = 1;
 }
 
-def RVSDG_MaterializeCtrl: RVSDG_Op<"materializeCtrl"> {
-    let summary = "Materialize control value from integer";
+def RVSDG_ConstantCtrl: RVSDG_Op<"constantCtrl"> {
+    let summary = "Materialize constant control value from integer constant";
     let description = [{
-        Materialize control value of specific type.
+        Creates a constant control value from a positive integer constant.
     }];
+
+    let arguments = (ins
+        UI64Attr:$value
+    );
+
     let results = (outs
         RVSDG_Ctrl:$output
     );
 
-    let assemblyFormat = "attr-dict `:` type($output)";
+    let assemblyFormat = "attr-dict $value `:` type($output)";
 }
 
 def RVSDG_Match: RVSDG_Op<"match"> {
