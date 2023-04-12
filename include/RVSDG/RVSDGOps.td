@@ -329,6 +329,6 @@ def RVSDG_Match: RVSDG_Op<"match"> {
         RVSDG_Ctrl:$output
     );
 
-    let assemblyFormat = "`(` $input `:` type($input) `)` attr-dict `->` type($output)";
+    let assemblyFormat = "attr-dict `(` $input `:` type($input) `)` $mapping `->` type($output)";
     let hasVerifier = 1;
 }
