@@ -6,6 +6,7 @@ set(LIBS
         ${conversion_libs}
         MLIRLspServerLib
         MLIRRVSDG
+        MLIRJLM
         )
 add_llvm_executable(rvsdg-lsp-server rvsdg-lsp-server.cpp)
 

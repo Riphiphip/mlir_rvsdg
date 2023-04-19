@@ -13,12 +13,14 @@
 #include "mlir/Tools/mlir-opt/MlirOptMain.h"
 
 #include "RVSDG/RVSDGDialect.h"
+#include "JLM/JLMDialect.h"
 
 int main(int argc, char **argv) {
   printf("Hello from rvsdg-opt!\n");
   mlir::registerAllPasses();
   mlir::DialectRegistry registry;
   registry.insert<mlir::rvsdg::RVSDGDialect>();
+  registry.insert<mlir::jlm::JLMDialect>();
   mlir::registerAllDialects(registry);
 
   return mlir::failed(mlir::MlirLspServerMain(argc, argv, registry));

@@ -14,10 +14,12 @@
 #include <stdio.h>
 
 #include <RVSDG/RVSDGDialect.h>
+#include <JLM/JLMDialect.h>
 
 int main(int argc, char *argv[]) {
   mlir::DialectRegistry registry;
   registry.insert<mlir::rvsdg::RVSDGDialect>();
+  registry.insert<mlir::jlm::JLMDialect>();
   mlir::registerAllDialects(registry);
 
   return mlir::asMainReturnCode(

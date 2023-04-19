@@ -3,7 +3,7 @@
 #define RVSDG_ATTRS
 include "mlir/IR/AttrTypeBase.td"
 
-include "RVSDGDialect.td"
+include "RVSDG/RVSDGDialect.td"
 
 
 class RVSDG_Attr<string name, string typeMnemonic, list<Trait> traits = []>: AttrDef<RVSDG_Dialect, name, traits> {

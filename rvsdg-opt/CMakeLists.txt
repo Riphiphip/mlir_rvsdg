@@ -6,6 +6,7 @@ set(LIBS
         ${conversion_libs}
         MLIROptLib
         MLIRRVSDG
+        MLIRJLM
         )
 add_llvm_executable(rvsdg-opt rvsdg-opt.cpp)
 
