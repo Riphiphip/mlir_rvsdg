@@ -6,6 +6,8 @@
 
 #include "mlir/Dialect/LLVMIR/LLVMTypes.h"
 
+#include "RVSDG/RVSDGASMDirectives.h"
+
 #include "JLM/JLMOps.h"
 
 using namespace mlir;

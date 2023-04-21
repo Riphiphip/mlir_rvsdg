@@ -109,7 +109,7 @@ def RVSDG_LambdaNode: RVSDG_Op<"lambdaNode", [IsolatedFromAbove]> {
     );
 
     let results = (outs
-        LambdaRef: $reference
+        RVSDG_LambdaRef: $reference
     );
 
     let regions = (region
@@ -148,7 +148,7 @@ def RVSDG_ApplyNode: RVSDG_Op<"applyNode">{
     }];
 
     let arguments = (ins
-        LambdaRef: $lambda,
+        RVSDG_LambdaRef: $lambda,
         Variadic<AnyType>: $parameters
     );
 
@@ -160,6 +160,10 @@ def RVSDG_ApplyNode: RVSDG_Op<"applyNode">{
 
     let hasVerifier = 1;
 }
+
+/*
+*  Theta Node
+*/
 
 def RVSDG_ThetaNode: RVSDG_Op<"thetaNode", [IsolatedFromAbove]> {
     let summary = "RVSDG theta node. Models a tail-controlled loop";
@@ -206,6 +210,9 @@ def RVSDG_ThetaResult: RVSDG_Op<"thetaResult", [
     let hasVerifier = 1;
 }
 
+/*
+*  Phi Node
+*/
 def RVSDG_PhiNode: RVSDG_Op<"phiNode", [IsolatedFromAbove]> {
     let summary = "RVSDG phi node. Models an environment with mutually recursive functions";
     let description = [{
@@ -222,7 +229,7 @@ def RVSDG_PhiNode: RVSDG_Op<"phiNode", [IsolatedFromAbove]> {
     );
 
     let results = (outs
-        Variadic<LambdaRef>:$outputs
+        Variadic<RVSDG_LambdaRef>:$outputs
     );
 
     let regions = (region
@@ -244,13 +251,16 @@ def RVSDG_PhiResult: RVSDG_Op<"phiResult", [
     }];
 
     let arguments = (ins
-        Variadic<LambdaRef>:$results
+        Variadic<RVSDG_LambdaRef>:$results
     );
 
     let assemblyFormat = "attr-dict custom<TypedParamList>($results, type($results))";
     let hasVerifier = 1;
 }
 
+/*
+*  Delta Node
+*/
 def RVSDG_DeltaNode: RVSDG_Op<"deltaNode", [IsolatedFromAbove]>{
     let summary = "RVSDG delta node. Used to model global variables";
 
@@ -292,6 +302,10 @@ def RVSDG_DeltaResult: RVSDG_Op<"deltaResult", [HasParent<"mlir::rvsdg::DeltaNod
     let hasVerifier = 1;
 }
 
+/*
+*  Control type ops
+*/
+
 def RVSDG_ConstantCtrl: RVSDG_Op<"constantCtrl"> {
     let summary = "Materialize constant control value from integer constant";
     let description = [{
@@ -309,7 +323,7 @@ def RVSDG_ConstantCtrl: RVSDG_Op<"constantCtrl"> {
     let assemblyFormat = "attr-dict $value `:` type($output)";
 }
 
-def RVSDG_Match: RVSDG_Op<"match"> {
+def RVSDG_Match: RVSDG_Op<"match", [Pure]> {
     let summary = "Match operator. Lookup table that converts integers into control values";
     let description = [{
         Match operator. Lookup table that converts integers into control values.
@@ -333,6 +347,10 @@ def RVSDG_Match: RVSDG_Op<"match"> {
     let hasVerifier = 1;
 }
 
+/*
+*  State management ops
+*/
+
 def RVSDG_MemStateMerge: RVSDG_Op<"memStateMerge"> {
     let summary = "Merge two memory states";
     let description = [{
@@ -340,11 +358,11 @@ def RVSDG_MemStateMerge: RVSDG_Op<"memStateMerge"> {
     }];
 
     let arguments = (ins
-        Variadic<MemStateType>:$inputStates
+        Variadic<RVSDG_MemState>:$inputStates
     );
 
     let results = (outs
-        MemStateType:$output
+        RVSDG_MemState:$output
     );
 
     let assemblyFormat = "attr-dict `(` $inputStates `)` `:` type($output)";

@@ -10,6 +10,7 @@ def JLM_Dialect : Dialect {
     Contains JLM specific types and operations.
   }];
   let useFoldAPI = kEmitFoldAdaptorFolder;
+  let useDefaultTypePrinterParser = 1;
   let extraClassDeclaration = [{
   /*
   * Used for registering JLM specific parametrized types.

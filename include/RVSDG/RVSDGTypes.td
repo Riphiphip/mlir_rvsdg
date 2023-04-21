@@ -13,7 +13,7 @@ class RVSDG_Type<string name, string typeMnemonic, list<Trait> traits = []>: Typ
 
 class RVSDG_StateType<string name, string typeMnemonic, list<Trait> traits = [StateTypeInterface]> : RVSDG_Type<name, typeMnemonic, traits>;
 
-def IOStateType : RVSDG_StateType<"IOStateEdge", "ioState"> {
+def RVSDG_IOState : RVSDG_StateType<"IOStateEdge", "ioState"> {
     let summary = "Type representing RVSDG state edges that sequentialize input/output operations";
     let description = [{
         SSA-values of this type are used to model RVSDG state edges
@@ -21,7 +21,7 @@ def IOStateType : RVSDG_StateType<"IOStateEdge", "ioState"> {
     }];
 }
 
-def MemStateType : RVSDG_StateType<"MemStateEdge", "memState"> {
+def RVSDG_MemState : RVSDG_StateType<"MemStateEdge", "memState"> {
     let summary = "Type representing RVSDG state edges that sequentialize memory operations";
     let description = [{
         SSA-values of this type are used to model RVSDG state edges
@@ -29,7 +29,7 @@ def MemStateType : RVSDG_StateType<"MemStateEdge", "memState"> {
     }];
 }
 
-def LoopStateType : RVSDG_StateType<"LoopStateEdge", "loopState"> {
+def RVSDG_LoopState : RVSDG_StateType<"LoopStateEdge", "loopState"> {
     let summary = "Type representing RVSDG state edges that sequentialize loops TODO!: Figure out what this is for";
     let description = [{
         SSA-values of this type are used to model RVSDG state edges
@@ -37,7 +37,7 @@ def LoopStateType : RVSDG_StateType<"LoopStateEdge", "loopState"> {
     }];
 }
 
-def LambdaRef : RVSDG_Type<"LambdaRef", "lambdaRef"> {
+def RVSDG_LambdaRef : RVSDG_Type<"LambdaRef", "lambdaRef"> {
     let summary = "Reference to a lambda node";
     let description = [{
         SSA-values of this type represent a reference to a lambda

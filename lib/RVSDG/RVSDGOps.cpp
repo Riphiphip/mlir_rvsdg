@@ -8,6 +8,7 @@
 
 #include "RVSDG/RVSDGDialect.h"
 #include "RVSDG/RVSDGOps.h"
+#include "RVSDG/RVSDGASMDirectives.h"
 
 using namespace mlir;
 using namespace rvsdg;
