@@ -105,26 +105,6 @@ LogicalResult GammaResult::verify() {
  *
  */
 LogicalResult LambdaNode::verify() {
-  auto bodyArgumentTypes = this->getRegion().getArgumentTypes();
-  auto nodeInputTypes = this->getOperandTypes();
-
-  if (bodyArgumentTypes.size() < nodeInputTypes.size()) {
-    return emitOpError(
-               "Number of arguments to lambda body needs to be greater than or "
-               "equal to number of node inputs. Expected at least ")
-           << nodeInputTypes.size() << " argument(s), got "
-           << bodyArgumentTypes.size();
-  }
-  for (size_t i = 0; i < nodeInputTypes.size(); ++i) {
-    if (nodeInputTypes[i] != bodyArgumentTypes[i]) {
-      return emitOpError("Mismatched types in lambda node body arguments. "
-                         "First arguments "
-                         "should match node inputs. "
-                         "Offending argument: #")
-             << i << " Expected " << nodeInputTypes[i] << ", got "
-             << bodyArgumentTypes[i];
-    }
-  }
 
   Value signatureVal = this->getResult();
   if (!signatureVal.getType().isa<LambdaRefType>()) {
@@ -133,18 +113,20 @@ LogicalResult LambdaNode::verify() {
         "see this error I feel bad for you.");
   }
   LambdaRefType signatureType = signatureVal.getType().cast<LambdaRefType>();
-  ArrayRef<Type> signatureParamTypes = signatureType.getParameterTypes();
 
-  if (signatureParamTypes.size() !=
-      bodyArgumentTypes.size() - nodeInputTypes.size()) {
-    return emitOpError("Mismatch between lambda signature and body arguments: "
-                       "Number of arguments in signature: ")
-           << signatureParamTypes.size()
-           << ". Number of arguments in body AFTER context values: "
-           << bodyArgumentTypes.size() - nodeInputTypes.size();
+  ArrayRef<Type> signatureParamTypes = signatureType.getParameterTypes();
+  auto bodyArgumentTypes = this->getRegion().getArgumentTypes();
+  auto nodeInputTypes = this->getOperandTypes();
+
+  if (bodyArgumentTypes.size() != signatureParamTypes.size() + nodeInputTypes.size()) {
+    return emitOpError("Mismatched number of arguments between lambda signature and body. ")
+           << "Signature has " << signatureParamTypes.size() << " arguments\n"
+           << "Node has " << nodeInputTypes.size() << " inputs\n"
+           << "Total number of arguments should be " << signatureParamTypes.size() + nodeInputTypes.size() << "\n"
+           << "Body has " << bodyArgumentTypes.size() << " arguments. ";
   }
 
-  for (size_t sigI = 0, argI = nodeInputTypes.size();
+  for (size_t sigI = 0, argI = 0;
        sigI < signatureParamTypes.size(); ++sigI, ++argI) {
     if (signatureParamTypes[sigI] != bodyArgumentTypes[argI]) {
       return emitOpError("Mismatched types between lambda signature and body "
@@ -154,6 +136,18 @@ LogicalResult LambdaNode::verify() {
              << " has type " << bodyArgumentTypes[argI];
     }
   }
+
+  for (size_t inI = 0, argI=signatureParamTypes.size(); inI < nodeInputTypes.size(); ++inI, ++argI) {
+    if (nodeInputTypes[inI] != bodyArgumentTypes[argI]) {
+      return emitOpError("Mismatched types in lambda node body arguments. "
+                         "First arguments "
+                         "should match node inputs. "
+                         "Offending argument: #")
+             << argI << " Expected " << nodeInputTypes[inI] << ", got "
+             << bodyArgumentTypes[argI];
+    }
+  }
+
   return LogicalResult::success();
 }
 

@@ -100,8 +100,8 @@ def RVSDG_LambdaNode: RVSDG_Op<"lambdaNode", [IsolatedFromAbove]> {
     let description = [{
         RVSG lambda node. Models a function or method definition. Inputs to this node are context
         values needed at call-time. The output from this node is a reference to the defined function.
-        The region of this node is the body of the function. Region arguments are context values and
-        function parameters. Region results are the return values of the function.
+        The region of this node is the body of the function. Region arguments are function parameters
+        followed by context values. Region results are the return values of the function.
     }];
 
     let arguments = (ins
