@@ -169,7 +169,10 @@ def RVSDG_ApplyNode: RVSDG_Op<"applyNode", [DeclareOpInterfaceMethods<CallOpInte
 *  Theta Node
 */
 
-def RVSDG_ThetaNode: RVSDG_Op<"thetaNode", [IsolatedFromAbove, Pure]> {
+def RVSDG_ThetaNode: RVSDG_Op<"thetaNode", [
+    IsolatedFromAbove,
+    DeclareOpInterfaceMethods<MemoryEffectsOpInterface>
+]> {
     let summary = "RVSDG theta node. Models a tail-controlled loop";
     let description = [{
         RVSDG theta node. Models a tail-controlled loop. First region result

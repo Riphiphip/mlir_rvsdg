@@ -310,6 +310,36 @@ LogicalResult ThetaResult::verify() {
   return LogicalResult::success();
 }
 
+/*
+ * Implements the MemoryEffectInterface for the theta node.
+ * If the node has a memory state input or output, it currently
+ * assumes that it has all memory effects. This can probably
+ * be improved by analyzing the ops in the region. 
+ * 
+ * This interface could probably be generically implemented
+ * for all structural nodes.
+*/
+void ThetaNode::getEffects(llvm::SmallVectorImpl<mlir::SideEffects::EffectInstance<mlir::MemoryEffects::Effect>> &effects) {
+  for (auto input : this->getInputs()) {
+    if (input.getType().isa<rvsdg::MemStateEdgeType>()) {
+      effects.push_back(mlir::MemoryEffects::Write::get());
+      effects.push_back(mlir::MemoryEffects::Read::get());
+      effects.push_back(mlir::MemoryEffects::Allocate::get());
+      effects.push_back(mlir::MemoryEffects::Free::get());
+      return;
+    }
+  }
+  for (auto output : this->getOutputs()) {
+    if (output.getType().isa<rvsdg::MemStateEdgeType>()) {
+      effects.push_back(mlir::MemoryEffects::Write::get());
+      effects.push_back(mlir::MemoryEffects::Read::get());
+      effects.push_back(mlir::MemoryEffects::Allocate::get());
+      effects.push_back(mlir::MemoryEffects::Free::get());
+      return;
+    }
+  }
+}
+
 
 /**
  * Phi node
