@@ -188,6 +188,16 @@ LogicalResult LambdaResult::verify() {
   return LogicalResult::success();
 }
 
+mlir::Region* LambdaNode::getCallableRegion() {
+  return &this->getRegion();
+}
+
+llvm::ArrayRef<mlir::Type> LambdaNode::getCallableResults() {
+  auto type = this->getResult().getType().dyn_cast_or_null<LambdaRefType>();
+  assert(type && "LambdaNode has invalid result type");
+  return type.getReturnTypes();
+}
+
 LogicalResult ApplyNode::verify() {
   auto lambdaType = this->getLambda().getType();
   auto paramTypes = this->getParameters().getTypes();
@@ -226,6 +236,14 @@ LogicalResult ApplyNode::verify() {
   }
 
   return LogicalResult::success();
+}
+
+mlir::CallInterfaceCallable ApplyNode::getCallableForCallee() {
+  return getLambda();
+}
+
+mlir::Operation::operand_range ApplyNode::getArgOperands() {
+  return this->getOperands().drop_front();
 }
 
 /**

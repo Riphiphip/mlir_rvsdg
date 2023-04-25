@@ -1,4 +1,6 @@
 include "mlir/IR/BuiltinTypes.td"
+include "mlir/Interfaces/CallInterfaces.td"
+include "mlir/Interfaces/LoopLikeInterface.td"
 
 include "RVSDG/RVSDGDialect.td"
 include "RVSDG/RVSDGTypes.td"
@@ -75,6 +77,7 @@ def RVSDG_OmegaNode: RVSDG_Op<"omegaNode", [IsolatedFromAbove]> {
 
 def RVSDG_OmegaResult: RVSDG_Op<"omegaResult", [
         HasParent<"mlir::rvsdg::OmegaNode">,
+        Pure,
         Terminator
     ]> {
     let summary = "Omega node results";
@@ -94,7 +97,7 @@ def RVSDG_OmegaResult: RVSDG_Op<"omegaResult", [
 *  Lambda Node
 */
 
-def RVSDG_LambdaNode: RVSDG_Op<"lambdaNode", [IsolatedFromAbove]> {
+def RVSDG_LambdaNode: RVSDG_Op<"lambdaNode", [IsolatedFromAbove, DeclareOpInterfaceMethods<CallableOpInterface>, Pure]> {
 
     let summary = "RVSDG lambda node. Models functions and methods.";
     let description = [{
@@ -123,7 +126,8 @@ def RVSDG_LambdaNode: RVSDG_Op<"lambdaNode", [IsolatedFromAbove]> {
 
 def RVSDG_LambdaResult: RVSDG_Op<"lambdaResult", [
         HasParent<"mlir::rvsdg::LambdaNode">,
-        Terminator
+        Terminator,
+        Pure
     ]> {
     let summary = "Lambda node results";
     let description = [{
@@ -140,7 +144,7 @@ def RVSDG_LambdaResult: RVSDG_Op<"lambdaResult", [
     let hasVerifier = 1;
 }
 
-def RVSDG_ApplyNode: RVSDG_Op<"applyNode">{
+def RVSDG_ApplyNode: RVSDG_Op<"applyNode", [DeclareOpInterfaceMethods<CallOpInterface>]>{
     let summary = "RVSDG apply node. Used to call lambda nodes";
     let description = [{
         RVSDG apply node. Takes a reference to the lambda node to be called as its first input
@@ -165,7 +169,7 @@ def RVSDG_ApplyNode: RVSDG_Op<"applyNode">{
 *  Theta Node
 */
 
-def RVSDG_ThetaNode: RVSDG_Op<"thetaNode", [IsolatedFromAbove]> {
+def RVSDG_ThetaNode: RVSDG_Op<"thetaNode", [IsolatedFromAbove, Pure]> {
     let summary = "RVSDG theta node. Models a tail-controlled loop";
     let description = [{
         RVSDG theta node. Models a tail-controlled loop. First region result
@@ -192,7 +196,8 @@ def RVSDG_ThetaNode: RVSDG_Op<"thetaNode", [IsolatedFromAbove]> {
 
 def RVSDG_ThetaResult: RVSDG_Op<"thetaResult", [
     HasParent<"mlir::rvsdg::ThetaNode">,
-    Terminator
+    Terminator,
+    Pure
 ]>{
     let summary = "Theta node results";
     let description = [{
@@ -213,7 +218,7 @@ def RVSDG_ThetaResult: RVSDG_Op<"thetaResult", [
 /*
 *  Phi Node
 */
-def RVSDG_PhiNode: RVSDG_Op<"phiNode", [IsolatedFromAbove]> {
+def RVSDG_PhiNode: RVSDG_Op<"phiNode", [IsolatedFromAbove, Pure]> {
     let summary = "RVSDG phi node. Models an environment with mutually recursive functions";
     let description = [{
         RVSDG phi node. Models an environment with mutually recursive functions. Has a single region
@@ -242,7 +247,8 @@ def RVSDG_PhiNode: RVSDG_Op<"phiNode", [IsolatedFromAbove]> {
 
 def RVSDG_PhiResult: RVSDG_Op<"phiResult", [
     HasParent<"mlir::rvsdg::PhiNode">,
-    Terminator
+    Terminator,
+    Pure
 ]>{
     let summary = "Phi node results";
     let description = [{
@@ -261,7 +267,7 @@ def RVSDG_PhiResult: RVSDG_Op<"phiResult", [
 /*
 *  Delta Node
 */
-def RVSDG_DeltaNode: RVSDG_Op<"deltaNode", [IsolatedFromAbove]>{
+def RVSDG_DeltaNode: RVSDG_Op<"deltaNode", [IsolatedFromAbove, Pure]>{
     let summary = "RVSDG delta node. Used to model global variables";
 
     let description = [{
@@ -288,7 +294,7 @@ def RVSDG_DeltaNode: RVSDG_Op<"deltaNode", [IsolatedFromAbove]>{
     let hasVerifier = 1;
 }
 
-def RVSDG_DeltaResult: RVSDG_Op<"deltaResult", [HasParent<"mlir::rvsdg::DeltaNode">, Terminator]> {
+def RVSDG_DeltaResult: RVSDG_Op<"deltaResult", [HasParent<"mlir::rvsdg::DeltaNode">, Terminator, Pure]> {
     let summary = "Delta node results";
     let description = [{
         Delta node results. Takes the value of the modelled global variable as input.
@@ -306,7 +312,7 @@ def RVSDG_DeltaResult: RVSDG_Op<"deltaResult", [HasParent<"mlir::rvsdg::DeltaNod
 *  Control type ops
 */
 
-def RVSDG_ConstantCtrl: RVSDG_Op<"constantCtrl"> {
+def RVSDG_ConstantCtrl: RVSDG_Op<"constantCtrl", [Pure]> {
     let summary = "Materialize constant control value from integer constant";
     let description = [{
         Creates a constant control value from a positive integer constant.
@@ -351,7 +357,7 @@ def RVSDG_Match: RVSDG_Op<"match", [Pure]> {
 *  State management ops
 */
 
-def RVSDG_MemStateMerge: RVSDG_Op<"memStateMerge"> {
+def RVSDG_MemStateMerge: RVSDG_Op<"memStateMerge", [Pure]> {
     let summary = "Merge two memory states";
     let description = [{
         Merge two memory states.
