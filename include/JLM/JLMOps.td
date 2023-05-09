@@ -108,3 +108,16 @@ def JLM_CreateVarArgList: JLM_Op<"createVarargs"> {
 
     let assemblyFormat = "attr-dict custom<TypedParamList>($input, type($input)) `->` type($output)";
 }
+
+def JLM_Undef: JLM_Op<"undef"> {
+    let summary = "Create an undefined value";
+    let description = [{
+        Create an undefined value.
+    }];
+
+    let results = (outs
+        AnyTypeOf<[RVSDG_Ctrl]>:$output
+    );
+
+    let assemblyFormat = "attr-dict `:` type($output)";
+}
