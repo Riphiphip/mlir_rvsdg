@@ -237,7 +237,7 @@ def RVSDG_PhiNode: RVSDG_Op<"phiNode", [IsolatedFromAbove, Pure]> {
     );
 
     let results = (outs
-        Variadic<RVSDG_LambdaRef>:$outputs
+        Variadic<AnyType>:$outputs
     );
 
     let regions = (region
