@@ -1,0 +1,16 @@
+{
+    "build": {
+        "dockerfile": "Dockerfile"
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"llvm-vs-code-extensions.vscode-mlir",
+				"ms-vscode.cmake-tools",
+				"cheshirekow.cmake-format",
+				"twxs.cmake",
+				"GitHub.copilot"
+			]
+		}
+	}
+}
