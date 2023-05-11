@@ -4,6 +4,7 @@ add_mlir_dialect_library(MLIRRVSDG
     RVSDGAttrs.cpp
     RVSDGDialect.cpp
     RVSDGOps.cpp
+    RVSDGOpInterfaces.cpp
     
     RVSDGPrintExportPass.cpp
 
@@ -12,6 +13,7 @@ add_mlir_dialect_library(MLIRRVSDG
     MLIRRVSDGOpsIncGen
     MLIRRVSDGTypesIncGen
     MLIRRVSDGAttrsIncGen
+    MLIRRVSDGOpInterfacesIncGen
     MLIRRVSDGPassIncGen
 
     LINK_LIBS PUBLIC

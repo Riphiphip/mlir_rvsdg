@@ -7,6 +7,7 @@
 #include "mlir/Interfaces/CallInterfaces.h"
 #include "mlir/Interfaces/LoopLikeInterface.h"
 
+#include "RVSDG/RVSDGOpInterfaces.h"
 #include "RVSDG/RVSDGTypes.h"
 #include "RVSDG/RVSDGAttrs.h"
 

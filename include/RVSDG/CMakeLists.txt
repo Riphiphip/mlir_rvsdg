@@ -11,6 +11,12 @@ mlir_tablegen(TypeInterfaces.cpp.inc -gen-type-interface-defs)
 add_public_tablegen_target(MLIRRVSDGTypeInterfacesIncGen)
 add_dependencies(mlir-headers MLIRRVSDGTypeInterfacesIncGen)
 
+set(LLVM_TARGET_DEFINITIONS RVSDGInterfaces.td)
+mlir_tablegen(OpInterfaces.h.inc -gen-op-interface-decls)
+mlir_tablegen(OpInterfaces.cpp.inc -gen-op-interface-defs)
+add_public_tablegen_target(MLIRRVSDGOpInterfacesIncGen)
+add_dependencies(mlir-headers MLIRRVSDGOpInterfacesIncGen)
+
 set(LLVM_TARGET_DEFINITIONS RVSDGTypes.td)
 mlir_tablegen(Types.h.inc -gen-typedef-decls)
 mlir_tablegen(Types.cpp.inc -gen-typedef-defs)

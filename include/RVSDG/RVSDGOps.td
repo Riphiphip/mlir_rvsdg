@@ -8,16 +8,20 @@ include "mlir/Interfaces/LoopLikeInterface.td"
 include "RVSDG/RVSDGDialect.td"
 include "RVSDG/RVSDGTypes.td"
 include "RVSDG/RVSDGAttrs.td"
+include "RVSDG/RVSDGInterfaces.td"
 
 include "mlir/Dialect/LLVMIR/LLVMTypes.td"
 
 class RVSDG_Op<string mnemonic, list<Trait> traits = []> :
     Op<RVSDG_Dialect, mnemonic, traits>;
 
+class RVSDG_StructuralNode<string mnemonic, list<Trait> traits = []> : 
+    RVSDG_Op<mnemonic, traits # [IsolatedFromAbove, RVSDG_StructuralNodeInterface]>;
+
 /**
 *  Gamma Node
 */
-def RVSDG_GammaNode: RVSDG_Op<"gammaNode", [IsolatedFromAbove]> {
+def RVSDG_GammaNode: RVSDG_StructuralNode<"gammaNode"> {
     let summary = "RVSDG gamma node which models conditional execution";
     let description = [{
         RVSDG gamma node. Models conditional execution such as if and switch statements.
@@ -65,7 +69,7 @@ def RVSDG_GammaResult: RVSDG_Op<"gammaResult", [
 /**
 *  Omega Node
 */
-def RVSDG_OmegaNode: RVSDG_Op<"omegaNode", [IsolatedFromAbove]> {
+def RVSDG_OmegaNode: RVSDG_StructuralNode<"omegaNode"> {
     let summary = "RVSDG Omega node. Top level node in RVSDG";
     let description = [{
         RVSDG omega node. This is the top level node in RVSDG and models a translation unit.
@@ -100,7 +104,7 @@ def RVSDG_OmegaResult: RVSDG_Op<"omegaResult", [
 *  Lambda Node
 */
 
-def RVSDG_LambdaNode: RVSDG_Op<"lambdaNode", [IsolatedFromAbove, DeclareOpInterfaceMethods<CallableOpInterface>, Pure]> {
+def RVSDG_LambdaNode: RVSDG_StructuralNode<"lambdaNode", [DeclareOpInterfaceMethods<CallableOpInterface>]> {
 
     let summary = "RVSDG lambda node. Models functions and methods.";
     let description = [{
@@ -172,8 +176,7 @@ def RVSDG_ApplyNode: RVSDG_Op<"applyNode", [DeclareOpInterfaceMethods<CallOpInte
 *  Theta Node
 */
 
-def RVSDG_ThetaNode: RVSDG_Op<"thetaNode", [
-    IsolatedFromAbove,
+def RVSDG_ThetaNode: RVSDG_StructuralNode<"thetaNode", [
     DeclareOpInterfaceMethods<MemoryEffectsOpInterface>
 ]> {
     let summary = "RVSDG theta node. Models a tail-controlled loop";
@@ -224,7 +227,7 @@ def RVSDG_ThetaResult: RVSDG_Op<"thetaResult", [
 /*
 *  Phi Node
 */
-def RVSDG_PhiNode: RVSDG_Op<"phiNode", [IsolatedFromAbove, Pure]> {
+def RVSDG_PhiNode: RVSDG_StructuralNode<"phiNode"> {
     let summary = "RVSDG phi node. Models an environment with mutually recursive functions";
     let description = [{
         RVSDG phi node. Models an environment with mutually recursive functions. Has a single region
@@ -273,7 +276,7 @@ def RVSDG_PhiResult: RVSDG_Op<"phiResult", [
 /*
 *  Delta Node
 */
-def RVSDG_DeltaNode: RVSDG_Op<"deltaNode", [IsolatedFromAbove, Pure]>{
+def RVSDG_DeltaNode: RVSDG_StructuralNode<"deltaNode", [Pure]>{
     let summary = "RVSDG delta node. Used to model global variables";
 
     let description = [{
