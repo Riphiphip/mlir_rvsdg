@@ -1,6 +1,6 @@
 {
-    "build": {
-        "dockerfile": "Dockerfile"
+	"build": {
+		"dockerfile": "Dockerfile"
 	},
 	"customizations": {
 		"vscode": {
@@ -9,8 +9,79 @@
 				"ms-vscode.cmake-tools",
 				"cheshirekow.cmake-format",
 				"twxs.cmake",
-				"GitHub.copilot"
-			]
+				"GitHub.copilot",
+				"ms-vscode.cpptools-extension-pack",
+				"vadimcn.vscode-lldb"
+			],
+			"settings": {
+				"cmake.configureOnOpen": true,
+				"mlir.server_path": "/workspaces/mlir_rvsdg/build/bin/rvsdg-lsp-server",
+				"mlir.tablegen_server_path": "/usr/bin/tblgen-lsp-server-16",
+				"files.associations": {
+					"*.inc": "cpp",
+					"memory": "cpp",
+					"array": "cpp",
+					"atomic": "cpp",
+					"bit": "cpp",
+					"*.tcc": "cpp",
+					"bitset": "cpp",
+					"cctype": "cpp",
+					"chrono": "cpp",
+					"cinttypes": "cpp",
+					"clocale": "cpp",
+					"cmath": "cpp",
+					"compare": "cpp",
+					"complex": "cpp",
+					"concepts": "cpp",
+					"condition_variable": "cpp",
+					"cstdarg": "cpp",
+					"cstddef": "cpp",
+					"cstdint": "cpp",
+					"cstdio": "cpp",
+					"cstdlib": "cpp",
+					"cstring": "cpp",
+					"ctime": "cpp",
+					"cwchar": "cpp",
+					"cwctype": "cpp",
+					"deque": "cpp",
+					"map": "cpp",
+					"set": "cpp",
+					"string": "cpp",
+					"unordered_map": "cpp",
+					"unordered_set": "cpp",
+					"vector": "cpp",
+					"exception": "cpp",
+					"algorithm": "cpp",
+					"functional": "cpp",
+					"iterator": "cpp",
+					"memory_resource": "cpp",
+					"numeric": "cpp",
+					"optional": "cpp",
+					"random": "cpp",
+					"ratio": "cpp",
+					"string_view": "cpp",
+					"system_error": "cpp",
+					"tuple": "cpp",
+					"type_traits": "cpp",
+					"utility": "cpp",
+					"initializer_list": "cpp",
+					"iosfwd": "cpp",
+					"istream": "cpp",
+					"limits": "cpp",
+					"mutex": "cpp",
+					"new": "cpp",
+					"numbers": "cpp",
+					"ostream": "cpp",
+					"semaphore": "cpp",
+					"sstream": "cpp",
+					"stdexcept": "cpp",
+					"stop_token": "cpp",
+					"streambuf": "cpp",
+					"thread": "cpp",
+					"typeinfo": "cpp",
+					"variant": "cpp"
+				}
+			}
 		}
 	}
 }
