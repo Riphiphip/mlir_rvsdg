@@ -29,4 +29,9 @@ mlir_tablegen(Ops.cpp.inc -gen-op-defs)
 add_public_tablegen_target(MLIRRVSDGOpsIncGen)
 add_dependencies(mlir-headers MLIRRVSDGOpsIncGen)
 
+set(LLVM_TARGET_DEFINITIONS RVSDGPasses.td)
+mlir_tablegen(Passes.h.inc -gen-pass-decls)
+add_public_tablegen_target(MLIRRVSDGPassIncGen)
+add_dependencies(mlir-headers MLIRRVSDGPassIncGen)
+
 add_mlir_doc(RVSDGOps RVSDGDialect Dialects/ -gen-dialect-doc)

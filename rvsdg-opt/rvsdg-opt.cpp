@@ -14,11 +14,13 @@
 #include <stdio.h>
 
 #include <RVSDG/RVSDGDialect.h>
+#include <RVSDG/RVSDGPasses.h>
 #include <JLM/JLMDialect.h>
 
 int main(int argc, char *argv[]) {
   mlir::MLIRContext context;
   mlir::registerAllPasses();
+  registerPasses();
 
   mlir::DialectRegistry registry;
   registry.insert<mlir::rvsdg::RVSDGDialect>();

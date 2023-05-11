@@ -1,3 +1,6 @@
+#ifndef RVSDG_OPS
+#define RVSDG_OPS
+
 include "mlir/IR/BuiltinTypes.td"
 include "mlir/Interfaces/CallInterfaces.td"
 include "mlir/Interfaces/LoopLikeInterface.td"
@@ -376,3 +379,4 @@ def RVSDG_MemStateMerge: RVSDG_Op<"memStateMerge", [Pure]> {
 
     let assemblyFormat = "attr-dict `(` $inputStates `)` `:` type($output)";
 }
+#endif // RVSDG_OPS
