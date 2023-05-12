@@ -11,9 +11,9 @@ def StateTypeInterface : TypeInterface<"StateTypeInterface"> {
     let cppNamespace = "::mlir::rvsdg"; 
 }
 
-def RVSDG_StructuralNodeInterface : OpInterface<"StructuralNodeInterface"> {
+def RVSDG_NodeInterface : OpInterface<"NodeInterface"> {
     let description = [{
-        Common interface for RVSDG structural nodes. 
+        Common interface for RVSDG nodes. 
         All interface methods are named using RVSDG terminology.
     }];
 
@@ -22,13 +22,28 @@ def RVSDG_StructuralNodeInterface : OpInterface<"StructuralNodeInterface"> {
     let methods = [
         InterfaceMethod< "Get node inputs", 
             "mlir::Operation::operand_range", "getRVSDGInputs", (ins), [{}],
-            [{return this->getOperands();}]
+            [{
+                auto *op = this->getOperation();
+                return op->getOperands();
+            }]
         >,
-        InterfaceMethod< "Get node output", 
+        InterfaceMethod< "Get node outputs", 
             "mlir::Operation::result_range", "getRVSDGOutputs", (ins), [{}],
-            [{return this->getResults();}]
+            [{
+                auto *op = this->getOperation();
+                return op->getResults();
+            }]
         >,
     ];
+}
+
+def RVSDG_StructuralNodeInterface : OpInterface<"StructuralNodeInterface", [RVSDG_NodeInterface]> {
+    let description = [{
+        Common interface for RVSDG structural nodes. 
+        All interface methods are named using RVSDG terminology.
+    }];
+
+    let cppNamespace = "::mlir::rvsdg";
 }
 
 #endif //RVSDG_INTERFACES
