@@ -1,4 +1,4 @@
-func.func @test () -> f32 {
+rvsdg.omegaNode(): {
     %select_val = arith.constant 1: i32
     %predicate = rvsdg.match(%select_val : i32) [
             #rvsdg.matchRule<0, 1-> 1>,
@@ -20,5 +20,5 @@ func.func @test () -> f32 {
             rvsdg.gammaResult (%c:f32, %c:f32)
         }
     ] -> f32, f32
-    func.return %gammaResult0: f32
+    rvsdg.omegaResult()
 }
