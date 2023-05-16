@@ -372,30 +372,33 @@ void ThetaNode::getEffects(llvm::SmallVectorImpl<mlir::SideEffects::EffectInstan
  * Phi node verifier.
  * Verifies the following attributes:
  * - Given n inputs of type I1, I2, ..., Tn, and k outputs of type O1, O2, ..., Ok,
- *   the region should have n + k arguments of type I1, I2, ..., Tn, O1, O2, ..., Ok.
+ *   the region should have k + n arguments of type O1, O2, ..., Ok, I1, I2, ..., Tn.
  */
 LogicalResult PhiNode::verify() {
   size_t nOperands = this->getNumOperands();
   size_t nOutputs = this->getOutputs().size();
   size_t nArgs = this->getRegion().getNumArguments();
   if (nOperands + nOutputs != nArgs) {
-    return this->emitOpError(" has wrong number of region arguments. Number of arguments should be equal to the number of inputs plus the number of outputs.");
+    return this->emitOpError(" has wrong number of region arguments. Expected ")
+      << nOperands +nOutputs << ". Found " << nArgs;
   }
 
-  for (auto [operandType, argType]: zip(this->getOperandTypes(), this->getRegion().getArgumentTypes())) {
-    if (operandType != argType) {
-      this->emitOpError(" has a type mismatch between inputs and region arguments");
+  for (size_t outputIndex=0, argIndex=0; outputIndex < nOutputs; ++outputIndex, ++argIndex) {
+    if (this->getResult(outputIndex).getType() != this->getRegion().getArgument(argIndex).getType()) {
+      return this->emitOpError(" has a type mismatch between outputs and region arguments.")
+        << "Argument #" << argIndex << " is of type " << this->getRegion().getArgument(argIndex).getType() 
+        << ", but output #" << outputIndex << " is of type " << this->getResult(outputIndex).getType();
     }
   }
 
-  auto argTypes = this->getRegion().getArgumentTypes();
-  auto outputs = this->getOutputs();
-
-  for (size_t outputIndex=0, argIndex=nOperands; outputIndex < nOutputs; ++outputIndex, ++argIndex) {
-    if (outputs[outputIndex].getType() != argTypes[argIndex]) {
-      return this->emitOpError(" has a type mismatch between outputs and region arguments");
+  for (size_t operandIndex=0, argIndex=nOutputs; operandIndex < nOperands; ++operandIndex, ++argIndex) {
+    if (this->getOperand(operandIndex).getType() != this->getRegion().getArgument(argIndex).getType()) {
+      this->emitOpError(" has a type mismatch between operands and region arguments.")
+        << "Argument #" << argIndex << " is of type " << this->getRegion().getArgument(argIndex).getType() 
+        << ", but operand #" << operandIndex << " is of type " << this->getOperand(operandIndex).getType();
     }
   }
+
 
   return LogicalResult::success();
 }
