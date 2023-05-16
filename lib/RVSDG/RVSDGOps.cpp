@@ -96,12 +96,10 @@ LogicalResult GammaResult::verify() {
 /**
  * @brief Verifies structure of lambda node.
  * Verifies the following attributes:
- *  - Number and types of region arguments when compared to inputs
- *    - Given n inputs with types t1, t2 ... tn, there should be at
- *      least n region arguments where the first n arguments should
- *      have types t1, t2 ... tn.
- *  - Verify that function signature has the same number of inputs
- *    as the lambda node.
+ *  - Number and types of region arguments when compared to inputs and function signature
+ *    - Given a function signature with n operands of types T1, T2, ..., Tn, and k inputs 
+ *      of types I1, I2, ..., Ik, the lambda node region should have n+k arguments of 
+ *      types T1, T2, ..., Tn, I1, I2, ..., Ik.
  *
  */
 LogicalResult LambdaNode::verify() {
@@ -109,8 +107,7 @@ LogicalResult LambdaNode::verify() {
   Value signatureVal = this->getResult();
   if (!signatureVal.getType().isa<LambdaRefType>()) {
     return emitOpError(
-        "Result type is invalid. Expected an instance of LambdaRefType. If you "
-        "see this error I feel bad for you.");
+        "Result type is invalid. Expected an instance of LambdaRefType.");
   }
   LambdaRefType signatureType = signatureVal.getType().cast<LambdaRefType>();
 
@@ -151,6 +148,13 @@ LogicalResult LambdaNode::verify() {
   return LogicalResult::success();
 }
 
+/**
+ * Lambda node region terminator.
+ * Verifies the following attributes:
+ * - Number and types of operands when compared to function signature
+ *  - Given a function signature with n results of types T1, T2, ..., Tn, the lambda node
+ *    terminator should have n operands of types T1, T2, ..., Tn.
+ */
 LogicalResult LambdaResult::verify() {
   auto parent = dyn_cast<LambdaNode>((*this)->getParentOp());
   if (parent == NULL) {
@@ -161,8 +165,7 @@ LogicalResult LambdaResult::verify() {
   Value signatureVal = parent.getResult();
   if (!signatureVal.getType().isa<LambdaRefType>()) {
     return emitOpError(
-        "Result type is invalid. Expected an instance of LambdaRefType. If you "
-        "see this error I feel bad for you.");
+        "Result type is invalid. Expected an instance of LambdaRefType.");
   }
   LambdaRefType signatureType = signatureVal.getType().cast<LambdaRefType>();
   ArrayRef<Type> signatureReturnTypes = signatureType.getReturnTypes();
@@ -188,6 +191,8 @@ LogicalResult LambdaResult::verify() {
   return LogicalResult::success();
 }
 
+// CallableOpInterface methods for lambda node
+
 mlir::Region* LambdaNode::getCallableRegion() {
   return &this->getRegion();
 }
@@ -198,6 +203,16 @@ llvm::ArrayRef<mlir::Type> LambdaNode::getCallableResults() {
   return type.getReturnTypes();
 }
 
+/*
+* Apply node verifier
+* Verifies the following attributes:
+* - Number and types of operands when compared to function signature
+*  - Given a function signature with n operands of types T1, T2, ..., Tn, the apply node
+*    should have n operands of types T1, T2, ..., Tn.
+* - Number and types of outputs when compared to the signature of the lambda node
+*  - Given a lambda signature with n results of types T1, T2, ..., Tn, the apply node
+*    should have n outputs of types T1, T2, ..., Tn.
+*/
 LogicalResult ApplyNode::verify() {
   auto lambdaType = this->getLambda().getType();
   auto paramTypes = this->getParameters().getTypes();
@@ -238,6 +253,7 @@ LogicalResult ApplyNode::verify() {
   return LogicalResult::success();
 }
 
+// CallableOpInterface methods for apply node
 mlir::CallInterfaceCallable ApplyNode::getCallableForCallee() {
   return getLambda();
 }
@@ -247,9 +263,11 @@ mlir::Operation::operand_range ApplyNode::getArgOperands() {
 }
 
 /**
- * Theta node
+ * Theta node verifier.
+ * Verifies the following attributes:
+ * - There should be an equal number of inputs, outputs, and region arguments, and they
+ *   should all have the same types appear in the same order.
  */
-
 LogicalResult ThetaNode::verify() {
   auto inputTypes = this->getInputs().getTypes();
   auto outputTypes = this->getOutputs().getTypes();
@@ -279,6 +297,12 @@ LogicalResult ThetaNode::verify() {
   return LogicalResult::success();
 }
 
+/* 
+* Theta result verifier.
+* Verifies the following attributes:
+* - Number and types of non-predicate operands match the outputs of the parent
+*   theta node.
+*/
 LogicalResult ThetaResult::verify() {
   auto resultTypes = this->getOutputValues().getTypes();
   ThetaNode parent = dyn_cast<ThetaNode>((*this)->getParentOp());
@@ -318,6 +342,9 @@ LogicalResult ThetaResult::verify() {
  * 
  * This interface could probably be generically implemented
  * for all structural nodes.
+ * 
+ * TODO: Consider baking specific side-effects into the
+ *       state type.
 */
 void ThetaNode::getEffects(llvm::SmallVectorImpl<mlir::SideEffects::EffectInstance<mlir::MemoryEffects::Effect>> &effects) {
   for (auto input : this->getInputs()) {
@@ -342,9 +369,11 @@ void ThetaNode::getEffects(llvm::SmallVectorImpl<mlir::SideEffects::EffectInstan
 
 
 /**
- * Phi node
+ * Phi node verifier.
+ * Verifies the following attributes:
+ * - Given n inputs of type I1, I2, ..., Tn, and k outputs of type O1, O2, ..., Ok,
+ *   the region should have n + k arguments of type I1, I2, ..., Tn, O1, O2, ..., Ok.
  */
-
 LogicalResult PhiNode::verify() {
   size_t nOperands = this->getNumOperands();
   size_t nOutputs = this->getOutputs().size();
@@ -371,6 +400,11 @@ LogicalResult PhiNode::verify() {
   return LogicalResult::success();
 }
 
+/**
+ * Phi result verifier.
+ * Verifies the following attributes:
+ * - Number and types of operands match the outputs of the parent phi node.
+ */
 LogicalResult PhiResult::verify() {
   PhiNode parent = dyn_cast<PhiNode>((*this)->getParentOp());
   if (parent == NULL) {
@@ -386,18 +420,14 @@ LogicalResult PhiResult::verify() {
       return this->emitOpError(" has a type mismatch between result Op and node outputs");
     }
   }
-  /* 
-  Should technically check type matchup with region arguments as well, but
-  match between outputs and region arguments is already being checked in the
-  PhiNode verifier.
-  */
   return LogicalResult::success();
 }
 
 /**
- * Delta node
+ * Delta node verifier.
+ * Verifies the following attributes:
+ * - Number and types of inputs match the region arguments.
  */
-
 LogicalResult DeltaNode::verify() {
   auto inputTypes = this->getInputs().getTypes();
   auto regionArgTypes = this->getRegion().getArgumentTypes();
@@ -421,6 +451,13 @@ LogicalResult DeltaNode::verify() {
   return LogicalResult::success();
 }
 
+/*
+* Delta result verifier.
+* Verifies the following attributes:
+* - Number and types of operands match the output of the parent delta node.
+*   - Delta output is a typed pointer which references the value given to the operand,
+*     so the operand type should match the element type of the output.
+*/
 LogicalResult DeltaResult::verify() {
   auto parent = dyn_cast<DeltaNode>((*this)->getParentOp());
   if (parent == NULL) {
@@ -443,9 +480,12 @@ LogicalResult DeltaResult::verify() {
 }
 
 /**
- * Match operator
+ * Match operator verifier.
+ * Verifies the following attributes:
+ * - No duplicate inputs in the match rules
+ * - For a match function that produces a control type with n options, the productions
+ *   of a mapping rule is in the range [0, n-1]
  */
-
 LogicalResult rvsdg::Match::verify() {
   auto mappingAttr = this->getMapping();
   auto nOptions = this->getOutput().getType().getNumOptions();
