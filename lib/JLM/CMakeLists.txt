@@ -15,3 +15,15 @@ add_mlir_dialect_library(MLIRJLM
     MLIRIR
     MLIRDialectUtils
 )
+
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/include/JLM" DESTINATION include
+    FILES_MATCHING PATTERN "*.h"
+)
+
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/include/JLM" DESTINATION include
+    FILES_MATCHING PATTERN "*.td"
+)
+
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/build/include/JLM" DESTINATION include
+    FILES_MATCHING PATTERN "*.h.inc"
+)
