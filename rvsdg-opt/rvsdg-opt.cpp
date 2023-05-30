@@ -18,7 +18,6 @@
 #include <JLM/JLMDialect.h>
 
 int main(int argc, char *argv[]) {
-  mlir::MLIRContext context;
   mlir::registerAllPasses();
   registerPasses();
 
@@ -26,10 +25,6 @@ int main(int argc, char *argv[]) {
   registry.insert<mlir::rvsdg::RVSDGDialect>();
   registry.insert<mlir::jlm::JLMDialect>();
   mlir::registerAllDialects(registry);
-
-  mlir::registerPassManagerCLOptions();
-  mlir::PassManager pm(&context);
-  applyPassManagerCLOptions(pm);
 
   return mlir::asMainReturnCode(
     mlir::MlirOptMain(argc, argv, "RVSDG Optimizer driver", registry)
